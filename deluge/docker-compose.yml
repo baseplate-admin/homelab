@@ -5,8 +5,6 @@ services:
     container_name: deluge
     restart: unless-stopped
     environment:
-      - PUID=1000
-      - PGID=1000
       - TZ=Asia/Dhaka
     ports:
       - '6881:6881'
