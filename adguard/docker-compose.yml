@@ -20,7 +20,7 @@ services:
 
       # HTTP UI
       - "traefik.http.routers.adguard.rule=Host(`adguard.lan`)"
-      - "traefik.http.routers.adguard.entrypoints=web"
+      - "traefik.http.routers.adguard.entrypoints=websecure"
       - "traefik.http.services.adguard.loadbalancer.server.port=3000"
     networks:
       - proxy
