@@ -23,7 +23,22 @@ services:
       - "traefik.http.services.deluge.loadbalancer.server.port=8112"
     networks:
       - proxy
+    depends_on:
+      volume-permission-helper:
+        condition: service_completed_successfully
 
+  volume-permission-helper:
+      image: alpine
+      volumes:
+        - deluge_config:/config
+      command: >
+        sh -c "
+          chown -R 1000:1000 /config &&
+          echo 'Volume Permissions fixed' &&
+          exit 0
+        "
+      restart: "no"
+      
 volumes:
   deluge_config:
 
