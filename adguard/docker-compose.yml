@@ -1,6 +1,6 @@
 services:
   adguard:
-    image: adguard/adguardhome:v0.108.0-b.80
+    image: adguard/adguardhome:edge
     container_name: adguard
     restart: unless-stopped
 
