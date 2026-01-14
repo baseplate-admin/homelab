@@ -5,7 +5,22 @@
 
 version: 2
 updates:
-  - package-ecosystem: "docker-compose" # See documentation for possible values
-    directory: "traefik" # Location of package manifests
-    schedule:
-      interval: "daily"
+    - package-ecosystem: 'docker-compose' # See documentation for possible values
+      directory: 'traefik' # Location of package manifests
+      schedule:
+          interval: 'daily'
+
+    - package-ecosystem: 'docker-compose' # See documentation for possible values
+      directory: 'adguard' # Location of package manifests
+      schedule:
+          interval: 'daily'
+
+    - package-ecosystem: 'docker-compose' # See documentation for possible values
+      directory: 'deluge' # Location of package manifests
+      schedule:
+          interval: 'daily'
+
+    - package-ecosystem: 'docker-compose' # See documentation for possible values
+      directory: 'tailscale' # Location of package manifests
+      schedule:
+          interval: 'daily'
