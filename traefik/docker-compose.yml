@@ -15,6 +15,9 @@ services:
             # 🔁 Global redirect
             - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
             - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+
+            # 🐞 Debug logs
+            - '--log.level=DEBUG'
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
         networks:
