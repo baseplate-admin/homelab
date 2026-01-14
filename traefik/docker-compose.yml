@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
     traefik:
         image: traefik:v3.0
@@ -13,6 +11,10 @@ services:
             - '--providers.docker.exposedbydefault=false'
             - '--entrypoints.web.address=:80'
             - '--entrypoints.websecure.address=:443'
+            
+            # 🔁 Global redirect
+            - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+            - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
         networks:

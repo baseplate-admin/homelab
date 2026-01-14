@@ -1,0 +1,34 @@
+services:
+  adguard:
+    image: adguard/adguardhome:edge
+    container_name: adguard
+    restart: unless-stopped
+
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+
+      # Web UI
+      - "3000:3000"
+
+    volumes:
+      - adguard_conf:/opt/adguardhome/conf
+      - adguard_work:/opt/adguardhome/work
+
+    labels:
+      - "traefik.enable=true"
+
+      # HTTP UI
+      - "traefik.http.routers.adguard.rule=Host(`adguard.lan`)"
+      - "traefik.http.routers.adguard.entrypoints=web"
+      - "traefik.http.services.adguard.loadbalancer.server.port=3000"
+    networks:
+      - proxy
+
+volumes:
+  adguard_conf:
+  adguard_work:
+
+networks:
+  proxy:
+    external: true

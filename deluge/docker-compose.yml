@@ -1,0 +1,32 @@
+services:
+  deluge:
+    image: linuxserver/deluge:latest
+    user: 1000:1000
+    container_name: deluge
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Dhaka
+    ports:
+      - '6881:6881'
+      - '6881:6881/udp'
+    volumes:
+      - deluge_config:/config
+      - /mnt/toshiba:/downloads/toshiba
+      - /mnt/hitachi:/downloads/hitachi
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.deluge.rule=Host(`deluge.lan`)"
+      - "traefik.http.routers.deluge.entrypoints=websecure"
+      - "traefik.http.routers.deluge.tls=true"
+      - "traefik.http.services.deluge.loadbalancer.server.port=8112"
+    networks:
+      - proxy
+
+volumes:
+  deluge_config:
+
+networks:
+  proxy:
+    external: true
