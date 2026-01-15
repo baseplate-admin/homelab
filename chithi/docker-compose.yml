@@ -1,9 +1,19 @@
+version: "3.9"
+
 services:
   seaweedfs:
-    image: chrislusf/seaweedfs
-    command: server -s3
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs
+    restart: unless-stopped
+    command: >
+      server
+      -dir=/data
+      -s3
+      -ip=seaweedfs
     ports:
-      - "8333:8333"
+      - "9333:9333"   # master
+      - "8080:8080"   # volume
+      - "8333:8333"   # S3 API
     volumes:
       - seaweed_data:/data
 
