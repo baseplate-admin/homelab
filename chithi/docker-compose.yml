@@ -112,6 +112,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`chithi.dev`)"
       - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.entrypoints=web"
     environment:
       PUBLIC_BACKEND_API: https://chithi.dev/api
