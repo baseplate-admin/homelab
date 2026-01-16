@@ -56,8 +56,6 @@ services:
     image: redis:8.4.0-alpine
     container_name: redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -71,8 +69,6 @@ services:
     container_name: backend
     restart: unless-stopped
     command: /bin/sh /app/scripts/start_backend.sh
-    ports:
-      - "8000:8000"
     environment: &backend-variable
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
@@ -109,11 +105,8 @@ services:
     image:  ghcr.io/chithi-dev/chithi-caddy:0.0.1
     container_name: caddy-proxy
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
     environment:
-      DOMAIN: chithi.dev
+      DOMAIN: :80
     volumes:
       - caddy_data:/data
       - caddy_config:/config
@@ -127,8 +120,6 @@ services:
     restart: unless-stopped
     environment:
       PUBLIC_BACKEND_API: https://chithi.dev/api
-    ports:
-      - "3000:3000"
     depends_on:
       - backend
 
