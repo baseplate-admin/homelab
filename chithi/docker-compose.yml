@@ -94,7 +94,9 @@ services:
         condition: service_healthy
       rustfs:
         condition: service_healthy
-
+    networks:
+      - proxy
+  
   celery_worker:
     image:  ghcr.io/chithi-dev/chithi-backend:0.0.1
     container_name: celery_worker
@@ -126,8 +128,14 @@ services:
       PUBLIC_BACKEND_API: https://chithi.dev/api
     depends_on:
       - backend
-
+    networks:
+      - proxy
+  
 volumes:
   postgres_data:
   redis_data:
   rustfs:
+
+networks:
+  proxy:
+    external: true
