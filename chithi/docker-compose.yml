@@ -70,7 +70,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
       # This middleware strips /api from the URL before it hits the container
-      - "traefik.docker.network=proxy" 
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.backend.priority=10"
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.entrypoints=websecure"
