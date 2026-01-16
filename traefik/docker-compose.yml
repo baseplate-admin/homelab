@@ -19,9 +19,9 @@ services:
             # 🐞 Debug logs
             - '--log.level=DEBUG'
             # --- Add these lines for Let's Encrypt ---
-            # - "--certificatesresolvers.myresolver.acme.email=zarifahnaf@outlook.com"
-            - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-            - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+            # - "--certificatesresolvers.letsencrypt.acme.email=zarifahnaf@outlook.com"
+            - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+            - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
             - letsencrypt:/letsencrypt  
