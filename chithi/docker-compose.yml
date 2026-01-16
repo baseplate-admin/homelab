@@ -60,7 +60,7 @@ services:
       retries: 3
 
   backend:
-    image: ghcr.io/chithi-dev/chithi-backend:0.0.4
+    image: ghcr.io/chithi-dev/chithi-backend:0.0.5
     container_name: backend
     restart: unless-stopped
     command: /bin/sh /app/scripts/start_backend.sh
