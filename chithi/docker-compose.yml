@@ -71,6 +71,10 @@ services:
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      # Enable letsencrypt
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+
     environment: &backend-variable
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
@@ -112,8 +116,9 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`chithi.dev`)"
       - "traefik.http.routers.frontend.priority=1"
-      - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
     environment:
       PUBLIC_BACKEND_API: https://chithi.dev/api
     depends_on:
