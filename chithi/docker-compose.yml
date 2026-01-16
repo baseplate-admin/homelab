@@ -70,8 +70,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
       # This middleware strips /api from the URL before it hits the container
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.backend.priority=10"
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.entrypoints=websecure"
@@ -81,6 +79,7 @@ services:
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
 
     environment: &backend-variable
+      
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
@@ -101,6 +100,7 @@ services:
       rustfs:
         condition: service_healthy
     networks:
+      - proxy
       - default
 
   celery_worker:
