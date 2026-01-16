@@ -66,7 +66,7 @@ services:
     command: /bin/sh /app/scripts/start_backend.sh
     labels: 
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.rule=Host(`backend.chithi.dev`)"
       # This middleware strips /api from the URL before it hits the container
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=api-strip"
@@ -121,7 +121,7 @@ services:
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
     environment:
-      PUBLIC_BACKEND_API: https://chithi.dev/api
+      PUBLIC_BACKEND_API: https://backend.chithi.dev/
     depends_on:
       - backend
 
