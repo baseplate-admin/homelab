@@ -79,8 +79,6 @@ services:
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
 
     environment: &backend-variable
-      ROOT_PATH: https://chithi.dev/api
-
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
@@ -91,6 +89,8 @@ services:
       RUSTFS_SECRET_ACCESS_KEY: rustfsadmin
       CELERY_BROKER_URL: redis://redis:6379
       CELERY_RESULT_BACKEND: redis://redis:6379
+      # Running behind reverse proxy
+      ROOT_PATH: /api
     depends_on:
       postgres:
         condition: service_started
