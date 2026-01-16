@@ -24,3 +24,8 @@ updates:
       directory: 'tailscale' # Location of package manifests
       schedule:
           interval: 'daily'
+
+    - package-ecosystem: 'docker-compose' # See documentation for possible values
+      directory: 'chithi' # Location of package manifests
+      schedule:
+          interval: 'daily'
