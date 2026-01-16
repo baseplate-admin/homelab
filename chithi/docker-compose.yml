@@ -60,7 +60,7 @@ services:
       retries: 3
 
   backend:
-    image: ghcr.io/chithi-dev/chithi-backend:0.0.6
+    image: ghcr.io/chithi-dev/chithi-backend:0.0.8
     container_name: backend
     restart: unless-stopped
     command: /bin/sh /app/scripts/start_backend.sh
@@ -71,6 +71,7 @@ services:
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
       # This middleware strips /api from the URL before it hits the container
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
+      - "traefik.http.middlewares.api-strip.stripprefix.forceSlash=true"
       - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
@@ -103,7 +104,7 @@ services:
       - default
 
   celery_worker:
-    image:  ghcr.io/chithi-dev/chithi-backend:0.0.6
+    image:  ghcr.io/chithi-dev/chithi-backend:0.0.8
     container_name: celery_worker
     restart: unless-stopped
     command: /bin/sh /app/scripts/start_celery.sh
