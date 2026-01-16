@@ -122,7 +122,7 @@ services:
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
     ports:
-      - '3000:30000'
+      - '30000:3000'
     environment:
       PUBLIC_BACKEND_API: https://backend.chithi.dev/
     depends_on:
