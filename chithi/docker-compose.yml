@@ -7,8 +7,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: supersecretpassword
       POSTGRES_DB: chithi
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
   volume-permission-helper:
@@ -30,9 +28,6 @@ services:
     container_name: rustfs
     restart: unless-stopped
     user: "10001:10001" 
-    ports:
-      - "9000:9000"
-      - "9001:9001"
     volumes:
       - rustfs:/data
     environment:
