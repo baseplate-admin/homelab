@@ -79,7 +79,7 @@ services:
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
 
     environment: &backend-variable
-      ROOT_PATH: /api
+      ROOT_PATH: https://chithi.dev/api
 
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
