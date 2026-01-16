@@ -1,40 +1,140 @@
-
 services:
-  master:
-      image: chrislusf/seaweedfs # use a remote image
-      ports:
-        - 9333:9333
-        - 19333:19333
-        - 9324:9324
-      command: 'master -ip=master -ip.bind=0.0.0.0 -metricsPort=9324'
-  volume:
-      image: chrislusf/seaweedfs # use a remote image
-      ports:
-        - 8080:8080
-        - 18080:18080
-        - 9325:9325
-      command: 'volume -ip=volume -master="master:9333" -ip.bind=0.0.0.0 -port=8080 -metricsPort=9325'
-      depends_on:
-        - master
-  filer:
-      image: chrislusf/seaweedfs # use a remote image
-      ports:
-        - 8888:8888
-        - 18888:18888
-        - 9326:9326
-      command: 'filer -ip=filer -master="master:9333" -ip.bind=0.0.0.0 -metricsPort=9326'
-      tty: true
-      stdin_open: true
-      depends_on:
-        - master
-        - volume
-  s3:
-      image: chrislusf/seaweedfs # use a remote image
-      ports:
-        - 8333:8333
-        - 9327:9327
-      command: 's3 -filer="filer:8888" -ip.bind=0.0.0.0 -metricsPort=9327'
-      depends_on:
-        - master
-        - volume
-        - filer
+  postgres:
+    image: postgres:18
+    container_name: postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecretpassword
+      POSTGRES_DB: chithi
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+  volume-permission-helper:
+    image: alpine
+    volumes:
+      - rustfs:/data
+    command: >
+      sh -c "
+        chown -R 10001:10001 /data &&
+        echo 'Volume Permissions fixed' &&
+        exit 0
+      "
+    restart: "no"
+
+  rustfs:
+    image: rustfs/rustfs:1.0.0-alpha.80
+    security_opt:
+      - "no-new-privileges:true"
+    container_name: rustfs
+    restart: unless-stopped
+    user: "10001:10001" 
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - rustfs:/data
+    environment:
+      RUSTFS_ADDRESS: "0.0.0.0:9000"
+      RUSTFS_CONSOLE_ADDRESS: "0.0.0.0:9001"
+      RUSTFS_VOLUMES: "/data/rustfs{0..3}"
+      RUSTFS_ACCESS_KEY: "rustfsadmin"
+      RUSTFS_SECRET_KEY: "rustfsadmin"
+      RUSTFS_CONSOLE_ENABLE: "true"
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "curl -f http://localhost:9000/health && curl -f http://localhost:9001/rustfs/console/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      
+    depends_on:
+      volume-permission-helper:
+        condition: service_completed_successfully
+  redis:
+    image: redis:8.4.0-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    image: ghcr.io/chithi-dev/chithi-backend:0.0.1
+    container_name: backend
+    restart: unless-stopped
+    command: /bin/sh /app/scripts/start_backend.sh
+    ports:
+      - "8000:8000"
+    environment: &backend-variable
+      POSTGRES_SERVER: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: supersecretpassword
+      POSTGRES_DB: chithi
+      RUSTFS_ENDPOINT_URL: http://rustfs:9000
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_ACCESS_KEY: rustfsadmin
+      CELERY_BROKER_URL: redis://redis:6379
+      CELERY_RESULT_BACKEND: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      rustfs:
+        condition: service_healthy
+
+  celery_worker:
+    image:  ghcr.io/chithi-dev/chithi-backend:0.0.1
+    container_name: celery_worker
+    restart: unless-stopped
+    command: /bin/sh /app/scripts/start_celery.sh
+    environment: *backend-variable
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+  caddy:
+    image:  ghcr.io/chithi-dev/chithi-caddy:0.0.1
+    container_name: caddy-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: chithi.dev
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
+  frontend:
+    image: ghcr.io/chithi-dev/chithi-frontend:0.0.1
+    container_name: frontend
+    restart: unless-stopped
+    environment:
+      PUBLIC_BACKEND_API: https://chithi.dev/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:
+  rustfs:
