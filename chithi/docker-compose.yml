@@ -96,7 +96,8 @@ services:
         condition: service_healthy
     networks:
       - proxy
-  
+      - default
+      
   celery_worker:
     image:  ghcr.io/chithi-dev/chithi-backend:0.0.1
     container_name: celery_worker
