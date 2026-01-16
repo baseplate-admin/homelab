@@ -102,6 +102,7 @@ services:
       rustfs:
         condition: service_healthy
     networks:
+      - proxy
       - default
 
   celery_worker:
