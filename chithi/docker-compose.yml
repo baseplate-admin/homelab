@@ -69,6 +69,8 @@ services:
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
+      # The proxy netwrok
+      - "traefik.docker.network=proxy"
       # This middleware strips /api from the URL before it hits the container
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=api-strip"
@@ -100,7 +102,6 @@ services:
       rustfs:
         condition: service_healthy
     networks:
-      - proxy
       - default
 
   celery_worker:
