@@ -79,6 +79,8 @@ services:
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
 
     environment: &backend-variable
+      ROOT_PATH: /api
+
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
