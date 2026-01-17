@@ -12,6 +12,9 @@ services:
             - '--entrypoints.web.address=:80'
             - '--entrypoints.websecure.address=:443'
             
+            # Experimental FastProxy
+            - "--experimental.fastProxy"
+            
             # 🔁 Global redirect
             - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
             - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
