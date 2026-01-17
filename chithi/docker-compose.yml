@@ -9,6 +9,11 @@ services:
       POSTGRES_DB: chithi
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   volume-permission-helper:
     image: alpine
     volumes:
@@ -79,7 +84,6 @@ services:
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
 
     environment: &backend-variable
-      
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
@@ -94,7 +98,7 @@ services:
       ROOT_PATH: /api
     depends_on:
       postgres:
-        condition: service_started
+        condition: service_healthy
       redis:
         condition: service_healthy
       rustfs:
@@ -111,7 +115,7 @@ services:
     environment: *backend-variable
     depends_on:
       postgres:
-        condition: service_started
+        condition: service_healthy
       redis:
         condition: service_healthy
       backend:
@@ -133,7 +137,8 @@ services:
     environment:
       PUBLIC_BACKEND_API: https://chithi.dev/api
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     networks:
       - proxy
   
