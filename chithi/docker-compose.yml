@@ -60,7 +60,7 @@ services:
       retries: 3
 
   backend:
-    image: ghcr.io/chithi-dev/chithi-backend:0.0.11
+    image: ghcr.io/chithi-dev/chithi-backend:0.0.12
     container_name: backend
     restart: unless-stopped
     command: /bin/sh /app/scripts/start_backend.sh
@@ -104,7 +104,7 @@ services:
       - default
 
   celery_worker:
-    image:  ghcr.io/chithi-dev/chithi-backend:0.0.11
+    image:  ghcr.io/chithi-dev/chithi-backend:0.0.12
     container_name: celery_worker
     restart: unless-stopped
     command: /bin/sh /app/scripts/start_celery.sh
