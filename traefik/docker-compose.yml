@@ -22,9 +22,7 @@ services:
             # 🔁 Global redirect
             - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
             - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-
-            # 🐞 Debug logs
-            - '--log.level=DEBUG'
+            
             # --- Add these lines for Let's Encrypt ---
             - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
             - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
