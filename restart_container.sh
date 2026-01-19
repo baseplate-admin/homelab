@@ -6,6 +6,7 @@ STACKS=(
   "tailscale"      
   # "adguard" # is known to break the entire system
   "deluge"
+  "chithi"
 )
 
 BASE_DIR="$(pwd)"
