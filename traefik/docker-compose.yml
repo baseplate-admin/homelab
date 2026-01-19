@@ -5,12 +5,16 @@ services:
         restart: unless-stopped
         ports:
             - '80:80'
-            - '443:443'
+            - "443:443/tcp"
+            - "443:443/udp"
         command:
             - '--providers.docker=true'
             - '--providers.docker.exposedbydefault=false'
             - '--entrypoints.web.address=:80'
             - '--entrypoints.websecure.address=:443'
+            
+            # Enable http/3
+            - "--entrypoints.websecure.http3=true"    
             
             # Experimental FastProxy
             - "--experimental.fastProxy"
@@ -22,7 +26,6 @@ services:
             # 🐞 Debug logs
             - '--log.level=DEBUG'
             # --- Add these lines for Let's Encrypt ---
-            # - "--certificatesresolvers.letsencrypt.acme.email=zarifahnaf@outlook.com"
             - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
             - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
         volumes:
