@@ -79,12 +79,17 @@ services:
       - "traefik.docker.network=proxy"
       # This middleware strips /api from the URL before it hits the container
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
-      - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
       # Enable letsencrypt
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+        # NO TIMEOUT middleware (critical for large downloads)
+      - "traefik.http.middlewares.backend-no-timeout.forwardingtimeouts.dialtimeout=0"
+      - "traefik.http.middlewares.backend-no-timeout.forwardingtimeouts.responseheadertimeout=0"
+      - "traefik.http.middlewares.backend-no-timeout.forwardingtimeouts.idleconntimeout=0"
+
+      - "traefik.http.routers.backend.middlewares=api-strip,backend-no-timeout"
 
     environment: &backend-variable
       POSTGRES_SERVER: postgres
