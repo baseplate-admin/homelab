@@ -79,13 +79,12 @@ services:
       - "traefik.docker.network=proxy"
       # This middleware strips /api from the URL before it hits the container
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
       # Enable letsencrypt
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-
-      - "traefik.http.routers.backend.middlewares=api-strip"
 
     environment: &backend-variable
       POSTGRES_SERVER: postgres
