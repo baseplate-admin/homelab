@@ -84,12 +84,8 @@ services:
       # Enable letsencrypt
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-        # NO TIMEOUT middleware (critical for large downloads)
-      - "traefik.http.middlewares.backend-no-timeout.forwardingTimeouts.dialTimeout=0"
-      - "traefik.http.middlewares.backend-no-timeout.forwardingTimeouts.responseHeaderTimeout=0"
-      - "traefik.http.middlewares.backend-no-timeout.forwardingTimeouts.idleConnTimeout=0"
 
-      - "traefik.http.routers.backend.middlewares=api-strip,backend-no-timeout"
+      - "traefik.http.routers.backend.middlewares=api-strip"
 
     environment: &backend-variable
       POSTGRES_SERVER: postgres
