@@ -29,6 +29,12 @@ services:
             # --- Add these lines for Let's Encrypt ---
             - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
             - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+
+            # Disable timeout
+            - '--entrypoints.websecure.transport.respondingTimeouts.readTimeout=0'
+            - '--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=0'
+
+
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
             - letsencrypt:/letsencrypt  

@@ -85,9 +85,6 @@ services:
       # Enable letsencrypt
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      # Disable timeouts
-      - "traefik.http.serverstransports.notimeout.forwardingTimeouts.dialTimeout=60s"
-      - "traefik.http.serverstransports.notimeout.forwardingTimeouts.responseHeaderTimeout=0s"
 
     environment: &backend-variable
       POSTGRES_SERVER: postgres
