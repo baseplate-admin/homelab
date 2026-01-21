@@ -109,7 +109,8 @@ services:
       # ======================
       - "traefik.http.serverstransports.notimeout.forwardingTimeouts.dialTimeout=60s"
       - "traefik.http.serverstransports.notimeout.forwardingTimeouts.responseHeaderTimeout=0s"
-      - "traefik.http.serverstransports.notimeout.forwardingTimeouts.idleTimeout=0s"
+      - "traefik.http.serverstransports.notimeout.forwardingTimeouts.readTimeout=0s"
+      - "traefik.http.serverstransports.notimeout.forwardingTimeouts.writeTimeout=0s"
 
       # ======================
       # Force HTTP/1.1 (disable h3 for uploads)
