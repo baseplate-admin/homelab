@@ -74,17 +74,47 @@ services:
     command: /bin/sh /app/scripts/start_backend.sh
     labels: 
       - "traefik.enable=true"
+
+      # ======================
+      # Normal API router
+      # ======================
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
-      # The proxy netwrok
-      - "traefik.docker.network=proxy"
-      # This middleware strips /api from the URL before it hits the container
-      - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
-      - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.services.backend.loadbalancer.server.port=8000"
-      # Enable letsencrypt
+      - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+
+      # Strip /api
+      - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
+
+      # Service
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.docker.network=proxy"
+
+      # ======================
+      # UPLOAD router
+      # ======================
+      - "traefik.http.routers.backend-upload.rule=Host(`chithi.dev`) && PathPrefix(`/api/upload`)"
+      - "traefik.http.routers.backend-upload.entrypoints=websecure"
+      - "traefik.http.routers.backend-upload.middlewares=api-strip"
+      - "traefik.http.routers.backend-upload.tls=true"
+      - "traefik.http.routers.backend-upload.tls.options=h1only"
+
+      # Attach no-timeout transport
+      - "traefik.http.routers.backend-upload.service=backend"
+      - "traefik.http.services.backend.loadbalancer.serverstransport=notimeout"
+
+      # ======================
+      # Disable timeouts
+      # ======================
+      - "traefik.http.serverstransports.notimeout.forwardingTimeouts.dialTimeout=60s"
+      - "traefik.http.serverstransports.notimeout.forwardingTimeouts.responseHeaderTimeout=0s"
+      - "traefik.http.serverstransports.notimeout.forwardingTimeouts.idleTimeout=0s"
+
+      # ======================
+      # Force HTTP/1.1 (disable h3 for uploads)
+      # ======================
+      - "traefik.tls.options.h1only.alpnProtocols=http/1.1"
 
     environment: &backend-variable
       POSTGRES_SERVER: postgres
