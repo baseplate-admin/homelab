@@ -12,20 +12,20 @@ services:
             - '--providers.docker.exposedbydefault=false'
             - '--entrypoints.web.address=:80'
             - '--entrypoints.websecure.address=:443'
-            
+
             # Enable http/3
-            - "--entrypoints.websecure.http3=true"    
-            
+            - "--entrypoints.websecure.http3=true"
+
             # Experimental FastProxy
             - "--experimental.fastProxy"
-            
+
             # 🐞 Info logs
-            - '--log.level=INFO'
+            - '--log.level=DEBUG'
 
             # 🔁 Global redirect
             - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
             - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-            
+
             # --- Add these lines for Let's Encrypt ---
             - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
             - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
@@ -34,15 +34,15 @@ services:
             - '--entrypoints.websecure.transport.respondingTimeouts.readTimeout=0'
             - '--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=0'
 
-
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
-            - letsencrypt:/letsencrypt  
+            - letsencrypt:/letsencrypt
         networks:
             - proxy
 
 volumes:
-  letsencrypt:
+    letsencrypt:
+
 
 networks:
     proxy:
