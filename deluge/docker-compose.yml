@@ -22,6 +22,7 @@ services:
       - "traefik.http.routers.deluge.tls=true"
       - "traefik.http.routers.deluge.tls.certresolver=letsencrypt"
       - "traefik.http.services.deluge.loadbalancer.server.port=8112"
+      - "traefik.http.services.adguard.loadbalancer.server.scheme=http"
     networks:
       - proxy
     depends_on:
