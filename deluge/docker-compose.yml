@@ -19,9 +19,9 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.deluge.rule=Host(`deluge.homelab.zad.bd`)"
       - "traefik.http.routers.deluge.entrypoints=websecure"
-      - "traefik.http.routers.deluge.tls.certresolver=letsencrypt"
       - "traefik.http.routers.deluge.tls=true"
-      - "traefik.http.services.deluge.loadbalancer.server.port=80"
+      - "traefik.http.routers.deluge.tls.certresolver=letsencrypt"
+      - "traefik.http.services.deluge.loadbalancer.server.port=8112"
     networks:
       - proxy
     depends_on:
