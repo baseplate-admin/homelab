@@ -19,7 +19,7 @@ services:
       - "traefik.enable=true"
 
       # HTTP UI
-      - "traefik.http.routers.adguard.rule=Host(`adguard.lan`)"
+      - "traefik.http.routers.adguard.rule=Host(`dns.homelab.zad.bd`)"
       - "traefik.http.routers.adguard.entrypoints=websecure"
       - "traefik.http.routers.adguard.tls=true"
       

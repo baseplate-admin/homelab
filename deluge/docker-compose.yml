@@ -17,7 +17,7 @@ services:
       - /mnt/hitachi:/downloads/hitachi
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.deluge.rule=Host(`deluge.lan`)"
+      - "traefik.http.routers.deluge.rule=Host(`deluge.homelab.zad.bd`)"
       - "traefik.http.routers.deluge.entrypoints=websecure"
       - "traefik.http.routers.deluge.tls=true"
       - "traefik.http.services.deluge.loadbalancer.server.port=8112"
