@@ -21,7 +21,7 @@ services:
       - "traefik.http.routers.deluge.entrypoints=websecure"
       - "traefik.http.routers.deluge.tls.certresolver=letsencrypt"
       - "traefik.http.routers.deluge.tls=true"
-      - "traefik.http.services.deluge.loadbalancer.server.port=8112"
+      - "traefik.http.services.deluge.loadbalancer.server.port=80"
     networks:
       - proxy
     depends_on:
