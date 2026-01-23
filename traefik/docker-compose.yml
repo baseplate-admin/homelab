@@ -7,11 +7,16 @@ services:
             - '80:80'
             - "443:443/tcp"
             - "443:443/udp"
+            - '8080:8080'
         command:
             - '--providers.docker=true'
             - '--providers.docker.exposedbydefault=false'
             - '--entrypoints.web.address=:80'
             - '--entrypoints.websecure.address=:443'
+
+            # Enable dashboard
+            - '--api.dashboard=true'
+            - '--api.insecure=true'
 
             # Enable http/3
             - "--entrypoints.websecure.http3=true"
