@@ -25,7 +25,7 @@ services:
             - "--experimental.fastProxy"
 
             # 🐞 Info logs
-            - '--log.level=DEBUG'
+            - '--log.level=INFO'
 
             # 🔁 Global redirect
             - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
