@@ -5,7 +5,7 @@ STACKS=(
   "traefik" # Traefik (must start first)
   "tailscale"      
   # "adguard" # is known to break the entire system
-  "deluge"
+  # "deluge" # is a attack vector
   "chithi"
 )
 
