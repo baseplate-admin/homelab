@@ -142,7 +142,7 @@ services:
         condition: service_started
 
   frontend:
-    image: ghcr.io/chithi-dev/chithi-frontend-node:0.0.49
+    image: ghcr.io/chithi-dev/chithi-frontend-node:0.0.50
     container_name: frontend
     restart: unless-stopped
     labels: 
