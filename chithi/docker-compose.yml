@@ -14,6 +14,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   volume-permission-helper:
     image: alpine
     volumes:
@@ -51,10 +52,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-      
     depends_on:
       volume-permission-helper:
         condition: service_completed_successfully
+
   redis:
     image: redis:8.4.0-alpine
     container_name: redis
@@ -67,6 +68,24 @@ services:
       timeout: 10s
       retries: 3
 
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbitpass
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   backend:
     image: ghcr.io/chithi-dev/chithi-backend:latest
     container_name: backend
@@ -75,17 +94,13 @@ services:
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
-      # The proxy netwrok
       - "traefik.docker.network=proxy"
-      # This middleware strips /api from the URL before it hits the container
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
-      # Enable letsencrypt
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-
     environment: &backend-variable
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
@@ -95,11 +110,9 @@ services:
       RUSTFS_ENDPOINT_URL: http://rustfs:9000
       RUSTFS_ACCESS_KEY: rustfsadmin
       RUSTFS_SECRET_ACCESS_KEY: rustfsadmin
-      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: amqp://rabbit:rabbitpass@rabbitmq:5672//
       CELERY_RESULT_BACKEND: redis://redis:6379/0
-      # Redis
       REDIS_ENDPOINT: redis://redis:6379/1
-      # Running behind reverse proxy
       ROOT_PATH: /api
     depends_on:
       postgres:
@@ -107,6 +120,8 @@ services:
       redis:
         condition: service_healthy
       rustfs:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - proxy
@@ -125,6 +140,8 @@ services:
         condition: service_healthy
       backend:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   frontend:
     image: ghcr.io/chithi-dev/chithi-frontend-node:latest
@@ -138,7 +155,6 @@ services:
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-
     environment:
       PUBLIC_BACKEND_API: https://chithi.dev/api
     depends_on:
@@ -146,11 +162,12 @@ services:
         condition: service_started
     networks:
       - proxy
-  
+
 volumes:
   postgres_data:
   redis_data:
   rustfs:
+  rabbitmq_data:
 
 networks:
   proxy:
