@@ -1,15 +1,15 @@
 services:
-  frontend:
+  landing:
     image: ghcr.io/chithi-dev/chithi-landing-page:latest
-    container_name: frontend
+    container_name: landing
     restart: unless-stopped
     labels: 
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`landing.chithi.dev`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.landing.rule=Host(`landing.chithi.dev`)"
+      - "traefik.http.routers.landing.entrypoints=websecure"
+      - "traefik.http.routers.landing.tls=true"
+      - "traefik.http.routers.landing.tls.certresolver=letsencrypt"
+      - "traefik.http.services.landing.loadbalancer.server.port=3000"
     networks:
       - proxy
 
