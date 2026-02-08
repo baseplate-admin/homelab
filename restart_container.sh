@@ -5,8 +5,9 @@ STACKS=(
   "traefik" # Traefik (must start first)
   "tailscale"      
   # "adguard" # is known to break the entire system
-  # "deluge" # is a attack vector
+  "deluge" # is a attack vector
   "chithi"
+  "chihti-landing"
 )
 
 BASE_DIR="$(pwd)"
