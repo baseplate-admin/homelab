@@ -8,7 +8,7 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.kuma.rule=Host(`public-test.chithi.dev`)"
+      - "traefik.http.routers.kuma.rule=Host(`public.chithi.dev`)"
       - "traefik.http.routers.kuma.entrypoints=websecure"
       - "traefik.http.routers.kuma.tls=true"
       - "traefik.http.routers.kuma.tls.certresolver=letsencrypt"
