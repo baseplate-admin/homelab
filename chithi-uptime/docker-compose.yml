@@ -5,7 +5,7 @@ services:
     volumes:
       - uptime-kuma-data:/app/data
     networks:
-      - web
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.kuma.rule=Host(`public-test.chithi.dev`)"
@@ -16,3 +16,10 @@ services:
     environment:
       - TZ=Asia/Dhaka
     restart: unless-stopped
+
+volumes:
+  uptime-kuma-data:
+
+networks:
+  proxy:
+    external: true
