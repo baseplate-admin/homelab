@@ -2,14 +2,6 @@ services:
   uptime-kuma:
     image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
-    environment:
-      - TZ=Asia/Dhaka
-      - DB_TYPE=mysql         # change from sqlite
-      - DB_HOST=db            # database host (the service name)
-      - DB_PORT=3306
-      - DB_USER=kuma          # database username
-      - DB_PASS=kuma123       # database password
-      - DB_NAME=kuma          # database name
     volumes:
       - uptime-kuma-data:/app/data
     networks:
@@ -21,27 +13,12 @@ services:
       - "traefik.http.routers.kuma.tls=true"
       - "traefik.http.routers.kuma.tls.certresolver=letsencrypt"
       - "traefik.http.services.kuma.loadbalancer.server.port=3001"
-    restart: unless-stopped
-    depends_on:
-      - db
-
-  db:
-    image: mariadb:latest
-    container_name: kuma-db
     environment:
-      - MYSQL_ROOT_PASSWORD=root123
-      - MYSQL_DATABASE=kuma
-      - MYSQL_USER=kuma
-      - MYSQL_PASSWORD=kuma123
-    volumes:
-      - kuma-db-data:/var/lib/mysql
-    networks:
-      - proxy
+      - TZ=Asia/Dhaka
     restart: unless-stopped
 
 volumes:
   uptime-kuma-data:
-  kuma-db-data:
 
 networks:
   proxy:
