@@ -1,10 +1,4 @@
-version: "3.9"
-
 services:
-
-  # -------------------------
-  # Database
-  # -------------------------
   postgres:
     image: postgres:18
     container_name: postgres-db
@@ -14,39 +8,34 @@ services:
       POSTGRES_PASSWORD: supersecretpassword
       POSTGRES_DB: chithi
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
-  # -----------
-  # RustFS init 
-  # ------------
-  rustfs-init:
-    image: busybox:latest
-    command: ["sh", "-c", "mkdir -p /data/rustfs && chown -R 10001:10001 /data"]
+  volume-permission-helper:
+    image: alpine
     volumes:
-      - rustfs_data:/data
-    user: root
+      - rustfs:/data
+    command: >
+      sh -c "
+        chown -R 10001:10001 /data &&
+        echo 'Volume Permissions fixed' &&
+        exit 0
+      "
     restart: "no"
 
-
-  # -------------------------
-  # RustFS Object Storage
-  # -------------------------
   rustfs:
-    image: rustfs/rustfs:1.0.0-alpha.83
+    image: rustfs/rustfs:1.0.0-alpha.82
+    security_opt:
+      - "no-new-privileges:true"
     container_name: rustfs
     restart: unless-stopped
-    user: "10001:10001"
-    depends_on:
-      rustfs-init:
-        condition: service_completed_successfully
+    user: "10001:10001" 
     volumes:
-      - rustfs_data:/data
+      - rustfs:/data
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -58,16 +47,15 @@ services:
       RUSTFS_SECRET_KEY: "rustfsadmin"
       RUSTFS_CONSOLE_ENABLE: "true"
     healthcheck:
-      test: ["CMD", "sh", "-c", "curl -f http://localhost:9000/health && curl -f http://localhost:9001/rustfs/console/health"]
+      test: [ "CMD", "sh", "-c", "curl -f http://localhost:9000/health && curl -f http://localhost:9001/rustfs/console/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    depends_on:
+      volume-permission-helper:
+        condition: service_completed_successfully
 
-
-  # -------------------------
-  # Redis
-  # -------------------------
   redis:
     image: redis:8.6.1-alpine
     container_name: redis
@@ -75,22 +63,18 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 30s
       timeout: 10s
       retries: 3
 
-
-  # -------------------------
-  # RabbitMQ
-  # -------------------------
   rabbitmq:
     image: rabbitmq:4-management-alpine
     container_name: rabbitmq
     restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
     environment:
       RABBITMQ_DEFAULT_USER: rabbit
       RABBITMQ_DEFAULT_PASS: rabbitpass
@@ -102,26 +86,22 @@ services:
       timeout: 10s
       retries: 3
 
-
-  # -------------------------
-  # Backend API
-  # -------------------------
   backend:
     image: ghcr.io/chithi-dev/chithi-backend:latest
     container_name: backend
     restart: unless-stopped
     command: /bin/sh /app/scripts/start_backend.sh
-    labels:
+    labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
+      - "traefik.docker.network=proxy"
       - "traefik.http.middlewares.api-strip.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=api-strip"
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
-      - "traefik.docker.network=proxy"
-    environment: &backend-env
+    environment: &backend-variable
       POSTGRES_SERVER: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
@@ -147,16 +127,12 @@ services:
       - proxy
       - default
 
-
-  # -------------------------
-  # Celery Worker
-  # -------------------------
   celery:
-    image: ghcr.io/chithi-dev/chithi-backend:latest
+    image:  ghcr.io/chithi-dev/chithi-backend:latest
     container_name: celery
     restart: unless-stopped
     command: /bin/sh /app/scripts/start_celery.sh
-    environment: *backend-env
+    environment: *backend-variable
     depends_on:
       postgres:
         condition: service_healthy
@@ -167,23 +143,18 @@ services:
       rabbitmq:
         condition: service_healthy
 
-
-  # -------------------------
-  # Frontend
-  # -------------------------
   frontend:
     image: ghcr.io/chithi-dev/chithi-frontend-node:latest
     container_name: frontend
     restart: unless-stopped
-    labels:
+    labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`chithi.dev`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.priority=1"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls=true"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-      - "traefik.docker.network=proxy"
     environment:
       PUBLIC_BACKEND_API: https://chithi.dev/api
     depends_on:
@@ -192,20 +163,12 @@ services:
     networks:
       - proxy
 
-
-# -------------------------
-# Volumes
-# -------------------------
 volumes:
   postgres_data:
   redis_data:
-  rustfs_data:
+  rustfs:
   rabbitmq_data:
 
-
-# -------------------------
-# Networks
-# -------------------------
 networks:
   proxy:
     external: true
