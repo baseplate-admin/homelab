@@ -15,17 +15,7 @@ services:
       timeout: 5s
       retries: 5
 
-  volume-permission-helper:
-    image: alpine
-    volumes:
-      - rustfs:/data
-    command: >
-      sh -c "
-        chown -R 10001:10001 /data &&
-        echo 'Volume Permissions fixed' &&
-        exit 0
-      "
-    restart: "no"
+  
 
   rustfs:
     image: rustfs/rustfs:1.0.0-alpha.84
@@ -52,9 +42,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    depends_on:
-      volume-permission-helper:
-        condition: service_completed_successfully
 
   redis:
     image: redis:8.6.1-alpine
