@@ -155,7 +155,6 @@ volumes:
   postgres_data:
   redis_data:
   rustfs:
-  rabbitmq_data:
 
 networks:
   proxy:
