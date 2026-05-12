@@ -2,42 +2,7 @@ services:
   adguard:
     image: adguard/adguardhome:edge
     container_name: adguard
-
     restart: unless-stopped
-    hostname: adguard
-
-    # Lower DNS latency
-    init: true
-
-    # Realtime / high priority scheduling
-    privileged: true
-
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-      - SYS_NICE
-
-    ulimits:
-      rtprio: 99
-      memlock: -1
-      nofile:
-        soft: 1048576
-        hard: 1048576
-
-    # Optional: pin to dedicated cores
-    # cpuset: "2,3"
-
-    # Better process priority
-    cpu_shares: 2048
-
-    # Prevent OOM killer from touching DNS
-    oom_score_adj: -950
-
-    sysctls:
-      net.core.somaxconn: 65535
-      net.ipv4.udp_rmem_min: 8192
-      net.ipv4.udp_wmem_min: 8192
-      net.ipv4.tcp_fastopen: 3
 
     ports:
       - "53:53/tcp"
@@ -53,7 +18,7 @@ services:
     labels:
       - "traefik.enable=true"
 
-      # HTTPS UI
+      # HTTP UI
       - "traefik.http.routers.adguard.rule=Host(`dns.homelab.zad.bd`)"
       - "traefik.http.routers.adguard.entrypoints=websecure"
       - "traefik.http.routers.adguard.tls=true"
@@ -61,13 +26,6 @@ services:
 
       - "traefik.http.services.adguard.loadbalancer.server.port=80"
       - "traefik.http.services.adguard.loadbalancer.server.scheme=http"
-
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
 
     networks:
       - proxy
