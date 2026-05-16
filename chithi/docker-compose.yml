@@ -28,7 +28,7 @@ services:
     restart: "no"
 
   rustfs:
-    image: rustfs/rustfs:1.0.0-beta.2
+    image: rustfs/rustfs:1.0.0-beta.3
     security_opt:
       - "no-new-privileges:true"
     container_name: rustfs
