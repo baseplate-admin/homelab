@@ -3,7 +3,8 @@ services:
     image: adguard/adguardhome:edge
     container_name: adguard
     restart: unless-stopped
-
+    privileged: true
+    
     ports:
       - "53:53/tcp"
       - "53:53/udp"
