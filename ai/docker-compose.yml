@@ -19,7 +19,7 @@ services:
               capabilities: [gpu, compute, utility]
 
   open-webui:
-    image: ghcr.io/open-webui/open-webui:cuda
+    image: openwebui/open-webui:cuda
     container_name: open-webui
     restart: unless-stopped
     mem_limit: 800m
