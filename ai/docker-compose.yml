@@ -10,42 +10,46 @@ services:
       - OLLAMA_NUM_PARALLEL=1
     volumes:
       - ollama_models:/models
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu, compute, utility]
+    networks:
+      - ai-net
 
-  open-webui:
-    image: openwebui/open-webui:cuda
-    container_name: open-webui
+  mongodb:
+    image: mongo:7
+    container_name: librechat-db
     restart: unless-stopped
-    mem_limit: 800m
-    environment:
-      - OLLAMA_BASE_URL=http://ollama:11434
-      - WEBUI_SECRET_KEY=homelab-ai-secret
     volumes:
-      - openwebui_data:/app/backend/data
-    ports:
-      - "3001:8080"
+      - mongo_data:/data/db
+    networks:
+      - ai-net
+
+  librechat:
+    image: ghcr.io/danny-avila/librechat:latest
+    container_name: librechat
+    restart: unless-stopped
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/librechat
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - NODE_ENV=production
+    volumes:
+      - librechat_data:/app/client/public/images
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.openwebui.rule=Host(`ai.homelab.zad.bd`)"
-      - "traefik.http.routers.openwebui.entrypoints=websecure"
-      - "traefik.http.routers.openwebui.tls=true"
-      - "traefik.http.routers.openwebui.tls.certresolver=letsencrypt"
-      - "traefik.http.services.openwebui.loadbalancer.server.port=8080"
+      - "traefik.http.routers.librechat.rule=Host(`ai.homelab.zad.bd`)"
+      - "traefik.http.routers.librechat.entrypoints=websecure"
+      - "traefik.http.routers.librechat.tls=true"
+      - "traefik.http.routers.librechat.tls.certresolver=letsencrypt"
+      - "traefik.http.services.librechat.loadbalancer.server.port=3080"
     networks:
       - proxy
       - ai-net
     depends_on:
       - ollama
+      - mongodb
 
 volumes:
   ollama_models:
-  openwebui_data:
+  mongo_data:
+  librechat_data:
 
 networks:
   proxy:
