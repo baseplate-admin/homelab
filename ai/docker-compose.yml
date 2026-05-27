@@ -10,21 +10,14 @@ services:
       - OLLAMA_NUM_PARALLEL=1
     volumes:
       - ollama_models:/models
+    ports:
+      - "11434:11434"
     networks:
       - ai-net
 
-  mongodb:
-    image: mongo:4.4.18
-    container_name: librechat-db
-    restart: unless-stopped
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - ai-net
-
-  librechat:
-    image: ghcr.io/danny-avila/librechat:latest
-    container_name: librechat
+  onyx:
+    image: onyx/onyx:latest
+    container_name: onyx
     restart: unless-stopped
 
     environment:
@@ -32,43 +25,34 @@ services:
       - PORT=3080
       - NODE_ENV=production
 
-      - MONGO_URI=mongodb://mongodb:27017/librechat
-
-      - JWT_SECRET=change_this_super_secret_key
-      - JWT_REFRESH_SECRET=change_this_refresh_secret
+      - OLLAMA_BASE_URL=http://ollama:11434
 
       - ALLOW_REGISTRATION=true
 
-      - OLLAMA_API_BASE_URL=http://ollama:11434
-
     volumes:
-      - librechat_data:/app/client/public/images
+      - onyx_data:/app/data
 
-      # REQUIRED
-      - ./librechat.yaml:/app/librechat.yaml:ro
+    depends_on:
+      - ollama
 
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-    
-      - "traefik.http.routers.librechat.rule=Host(`ai.homelab.zad.bd`)"
-      - "traefik.http.routers.librechat.entrypoints=websecure"
-      - "traefik.http.routers.librechat.tls=true"
-      - "traefik.http.routers.librechat.tls.certresolver=letsencrypt"  
-      - "traefik.http.services.librechat.loadbalancer.server.port=3080"
-  
     networks:
       - proxy
       - ai-net
 
-    depends_on:
-      - ollama
-      - mongodb
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+
+      - "traefik.http.routers.onyx.rule=Host(`ai.homelab.zad.bd`)"
+      - "traefik.http.routers.onyx.entrypoints=websecure"
+      - "traefik.http.routers.onyx.tls=true"
+      - "traefik.http.routers.onyx.tls.certresolver=letsencrypt"
+
+      - "traefik.http.services.onyx.loadbalancer.server.port=3080"
 
 volumes:
   ollama_models:
-  mongo_data:
-  librechat_data:
+  onyx_data:
 
 networks:
   proxy:
