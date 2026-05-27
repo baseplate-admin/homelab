@@ -3,7 +3,7 @@ services:
     image: ollama/ollama:latest
     container_name: ollama
     restart: unless-stopped
-    runtime: nvidia
+    gpus: all
     environment:
       - OLLAMA_MODELS=/models
       - OLLAMA_KEEP_ALIVE=5m
