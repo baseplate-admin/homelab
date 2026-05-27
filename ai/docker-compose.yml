@@ -49,12 +49,14 @@ services:
 
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+    
       - "traefik.http.routers.librechat.rule=Host(`ai.homelab.zad.bd`)"
       - "traefik.http.routers.librechat.entrypoints=websecure"
       - "traefik.http.routers.librechat.tls=true"
-      - "traefik.http.routers.librechat.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.librechat.tls.certresolver=letsencrypt"  
       - "traefik.http.services.librechat.loadbalancer.server.port=3080"
-
+  
     networks:
       - proxy
       - ai-net
