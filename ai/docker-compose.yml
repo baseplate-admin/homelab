@@ -18,7 +18,7 @@ services:
               count: all
               capabilities: [gpu, compute, utility]
 
-open-webui:
+  open-webui:
     image: ghcr.io/open-webui/open-webui:cuda
     container_name: open-webui
     restart: unless-stopped
