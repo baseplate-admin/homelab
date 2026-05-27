@@ -26,12 +26,27 @@ services:
     image: ghcr.io/danny-avila/librechat:latest
     container_name: librechat
     restart: unless-stopped
+
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/librechat
-      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - HOST=0.0.0.0
+      - PORT=3080
       - NODE_ENV=production
+
+      - MONGO_URI=mongodb://mongodb:27017/librechat
+
+      - JWT_SECRET=change_this_super_secret_key
+      - JWT_REFRESH_SECRET=change_this_refresh_secret
+
+      - ALLOW_REGISTRATION=true
+
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+
     volumes:
       - librechat_data:/app/client/public/images
+
+      # REQUIRED
+      - ./librechat.yaml:/app/librechat.yaml:ro
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.librechat.rule=Host(`ai.homelab.zad.bd`)"
@@ -39,9 +54,11 @@ services:
       - "traefik.http.routers.librechat.tls=true"
       - "traefik.http.routers.librechat.tls.certresolver=letsencrypt"
       - "traefik.http.services.librechat.loadbalancer.server.port=3080"
+
     networks:
       - proxy
       - ai-net
+
     depends_on:
       - ollama
       - mongodb
