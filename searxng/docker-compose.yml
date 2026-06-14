@@ -10,7 +10,9 @@ services:
 
     volumes:
       - searxng_config:/etc/searxng
-
+    ports:
+      - "8080:8080"
+      
     networks:
       - proxy
 
