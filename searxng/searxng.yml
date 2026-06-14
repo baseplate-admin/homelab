@@ -1,0 +1,13 @@
+# SearXNG settings - enable JSON API for programmatic queries
+
+use_default_settings: true
+
+search:
+  json_enabled: true
+  formats:
+    - html
+    - json
+
+server:
+  bind_address: "0.0.0.0"
+  port: 8080

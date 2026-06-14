@@ -9,6 +9,7 @@ services:
       - INSTANCE_NAME=Homelab SearXNG
 
     volumes:
+      - ./searxng.yml:/etc/searxng/settings.yml
       - searxng_config:/etc/searxng
 
     networks:
