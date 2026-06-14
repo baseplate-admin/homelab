@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
 
     environment:
-      - BASE_URL=https://searxng.homelab.zad.bd/
+      - BASE_URL=https://searxng.homelab.zad.bd
       - INSTANCE_NAME=Homelab SearXNG
 
     volumes:
@@ -22,11 +22,14 @@ services:
       - "traefik.http.routers.searxng.entrypoints=websecure"
       - "traefik.http.routers.searxng.tls.certresolver=letsencrypt"
 
-      # IMPORTANT: internal container port
+      # internal port
       - "traefik.http.services.searxng.loadbalancer.server.port=8080"
 
-      # Forward real client IP to SearXNG (bot detection requires it)
-      - "traefik.http.routers.searxng.middlewares=searxng-forwardedheaders"
+      #  forwarded headers middleware
+      - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Port=443"
+
+      - "traefik.http.routers.searxng.middlewares=searxng-headers"
 
 networks:
   proxy:
