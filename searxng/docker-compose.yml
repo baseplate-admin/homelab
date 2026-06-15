@@ -36,6 +36,12 @@ services:
       # Internal port
       - "traefik.http.services.searxng.loadbalancer.server.port=8080"
 
+      # Forwarded headers middleware
+      - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Port=443"
+
+      - "traefik.http.routers.searxng.middlewares=searxng-headers"
+
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
       interval: 30s
