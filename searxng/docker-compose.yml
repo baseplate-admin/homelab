@@ -12,12 +12,11 @@ services:
     environment:
       - BASE_URL=https://searxng.homelab.zad.bd
       - INSTANCE_NAME=Homelab SearXNG
-      - SEARXNG_REDIS_URL=redis://redis:6379/0
+      - SEARXNG_VALKEY_URL=redis://redis:6379/0
       - SEARXNG_DATABASE_URL=postgresql://searxng:searxng_pass@postgres:5432/searxng
 
     volumes:
       - ./searxng.yml:/etc/searxng/settings.yml
-      - searxng_config:/etc/searxng
       - searxng_data:/data
 
     networks:
@@ -38,6 +37,7 @@ services:
       # Forwarded headers middleware
       - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Port=443"
+      - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Host=searxng.homelab.zad.bd"
 
       - "traefik.http.routers.searxng.middlewares=searxng-headers"
 
@@ -47,7 +47,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 15s
-
 
   redis:
     image: redis:8-alpine
@@ -85,6 +84,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
 networks:
   proxy:
@@ -93,7 +96,6 @@ networks:
     driver: bridge
 
 volumes:
-  searxng_config:
   searxng_data:
   redis_data:
   postgres_data:

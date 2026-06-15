@@ -100,6 +100,35 @@ categories:
   files:
     name: Files
 
+# ─── Required settings (use_default_settings: false) ──────
+doi_resolvers:
+  europepmc:
+    text: Europe PMC
+    url: https://europepmc.org/backend/ptpmcref?accession_token=
+  crossref:
+    text: CrossRef
+    url: https://doi.org/
+  datacite:
+    text: DataCite
+    url: https://doi.org/
+  arxiv:
+    text: arXiv
+    url: https://arxiv.org/abs/
+  dblp:
+    text: DBLP
+    url: https://dblp.org/rec/
+  semanticscholar:
+    text: Semantic Scholar
+    url: https://www.semanticscholar.org/paper/
+  openalex:
+    text: OpenAlex
+    url: https://openalex.org/works/
+  mag:
+    text: Microsoft Academic Graph
+    url: https://academic.microsoft.com/detail/
+
+default_doi_resolver: 'europepmc'
+
 # ─── Engine Configuration - Google-like quality combo ─────
 engines:
 
@@ -159,14 +188,6 @@ engines:
     quicklink: true
 
   # ── Additional quality engines ────────────────────────
-  - name: qwant
-    engine: qwant
-    weights:
-      general: 0.5
-    shortcut: qw
-    disabled: false
-    quicklink: true
-
   - name: mojeek
     engine: mojeek
     weights:
@@ -184,7 +205,7 @@ engines:
     quicklink: true
 
   # ── News ──────────────────────────────────────────────
-  - name: brave_news
+  - name: brave-news
     engine: brave_news
     weights:
       news: 1.5
@@ -193,7 +214,7 @@ engines:
     categories:
       - news
 
-  - name: duckduckgo_news
+  - name: duckduckgo-news
     engine: duckduckgo_news
     weights:
       news: 1.0
@@ -210,15 +231,8 @@ engines:
     categories:
       - files
 
-  - name: pirateproxy
-    engine: pirateproxy
-    disabled: false
-    shortcut: pp
-    categories:
-      - files
-
   # ── IT category engines ───────────────────────────────
-  - name: stackoverflow_it
+  - name: stackoverflow-it
     engine: stackexchange
     weights:
       it: 2.0
@@ -228,7 +242,7 @@ engines:
       - it
     quicklink: true
 
-  - name: google_scholar
+  - name: google-scholar
     engine: google_scholar
     weights:
       it: 1.0
@@ -239,7 +253,7 @@ engines:
     quicklink: true
 
   # ── Image search ──────────────────────────────────────
-  - name: brave_images
+  - name: brave-images
     engine: brave_images
     weights:
       images: 1.5
@@ -248,7 +262,7 @@ engines:
     categories:
       - images
 
-  - name: duckduckgo_images
+  - name: duckduckgo-images
     engine: duckduckgo_images
     weights:
       images: 1.0
@@ -258,7 +272,7 @@ engines:
       - images
 
   # ── Video search ──────────────────────────────────────
-  - name: brave_videos
+  - name: brave-videos
     engine: brave_videos
     weights:
       videos: 1.5
@@ -267,7 +281,7 @@ engines:
     categories:
       - videos
 
-  - name: duckduckgo_videos
+  - name: duckduckgo-videos
     engine: duckduckgo_videos
     weights:
       videos: 1.0
