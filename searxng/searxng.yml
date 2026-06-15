@@ -91,6 +91,9 @@ categories:
 
 # ─── Required settings (use_default_settings: false) ──────
 doi_resolvers:
+  doi:
+    text: doi.org 
+    url: https://doi.org/
   europepmc:
     text: Europe PMC
     url: https://europepmc.org/backend/ptpmcref?accession_token=
