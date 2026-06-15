@@ -28,16 +28,16 @@ server:
   secret_key: "48f459ac97b069853341a3fd15096a54ba83479ea1aff98bb95c4413f043b8ab"
   bind_address: "0.0.0.0"
   port: 8080
-  base_url: "https://searxng.homelab.zad.bd/"
-  method: "POST"
+  # IMPORTANT: reverse proxy safe mode
+  base_url: "https://searxng.homelab.zad.bd"
+
   proxy_mode: true
+  image_proxy: true
+  public_instance: true
   limiter: true
-  storage:
-    backend:
-      name: postgres
-      url: postgresql://searxng:searxng_pass@postgres:5432/searxng
-      username: searxng
-      password: searxng_pass
+
+  method: "POST"
+
   atf: true
   result_proxy: false
   debug: false
