@@ -1,14 +1,271 @@
-# SearXNG settings - enable JSON API for programmatic queries
+# SearXNG settings - Google-like quality search
 
-use_default_settings: true
+use_default_settings: false
 
+# ─── General ───────────────────────────────────────────────
+general:
+  debug: false
+  instance_name: "Homelab SearXNG"
+  privacypolicy_url: false
+  donate_url: false
+  warn_about_missing_reducer: true
+
+# ─── Search ────────────────────────────────────────────────
 search:
-  json_enabled: true
+  safe_search: 0
+  existing_only: false
+  autocomplete: google
+  default_lang: auto
   formats:
     - html
     - json
+  json_enabled: true
+  redirect_hits: true
+  remove_pending_after: 30
 
+# ─── Server ────────────────────────────────────────────────
 server:
   secret_key: "48f459ac97b069853341a3fd15096a54ba83479ea1aff98bb95c4413f043b8ab"
   bind_address: "0.0.0.0"
   port: 8080
+  # IMPORTANT: reverse proxy safe mode
+  base_url: "https://searxng.homelab.zad.bd"
+
+  proxy_mode: true
+  image_proxy: true
+  public_instance: true
+  limiter: true
+
+  method: "POST"
+
+  atf: true
+  result_proxy: false
+  debug: false
+
+# ─── Database ──────────────────────────────────────────────
+database:
+  backend: postgres
+  url: postgresql://searxng:searxng_pass@postgres:5432/searxng
+
+# ─── UI ────────────────────────────────────────────────────
+ui:
+  static_use_hash: true
+  theme: simple
+  default_theme: simple
+  infinite_scroll: true
+  max_displayed_results_per_type: 10
+  editions: 5
+  default_transformation_hints_visibility: true
+  query_in_title: true
+
+# ─── Plugins ───────────────────────────────────────────────
+enabled_plugins:
+  - 'Hash plugin'
+  - 'Tracker URL remover'
+  - 'Hostname replacement'
+  - 'Open Access DOI replacement'
+  - 'Self Information'
+  - 'Torrent plugins'
+  - 'Wiki API plugin'
+  - 'Image suggestion plugin'
+  - 'Search on category key plugin'
+  - 'Advanced search settings'
+  - 'Leetkey plugin'
+  - '2048 bytes'
+  - 'Vim-like key binding plugin'
+  - 'Mort plugin'
+  - 'Advanced search'
+
+# ─── Checker ───────────────────────────────────────────────
+checker:
+  disable_checker: false
+
+# ─── Categories ────────────────────────────────────────────
+categories:
+  general:
+    icons: false
+  it:
+    name: IT
+  files:
+    name: Files
+
+# ─── Required settings (use_default_settings: false) ──────
+doi_resolvers:
+  europepmc:
+    text: Europe PMC
+    url: https://europepmc.org/backend/ptpmcref?accession_token=
+  crossref:
+    text: CrossRef
+    url: https://doi.org/
+  datacite:
+    text: DataCite
+    url: https://doi.org/
+  arxiv:
+    text: arXiv
+    url: https://arxiv.org/abs/
+  dblp:
+    text: DBLP
+    url: https://dblp.org/rec/
+  semanticscholar:
+    text: Semantic Scholar
+    url: https://www.semanticscholar.org/paper/
+  openalex:
+    text: OpenAlex
+    url: https://openalex.org/works/
+  mag:
+    text: Microsoft Academic Graph
+    url: https://academic.microsoft.com/detail/
+
+default_doi_resolver: 'europepmc'
+
+# ─── Engine Configuration - Google-like quality combo ─────
+engines:
+
+  # ── Web Search Engines (primary) ──────────────────────
+  - name: bing
+    engine: bing
+    weights:
+      general: 2.0
+    shortcut: bi
+    disabled: false
+    quicklink: true
+
+  - name: brave
+    engine: brave
+    weights:
+      general: 1.5
+    shortcut: br
+    disabled: false
+    quicklink: true
+
+  - name: duckduckgo
+    engine: duckduckgo
+    weights:
+      general: 1.0
+    shortcut: ddg
+    disabled: false
+    quicklink: true
+
+  - name: google
+    engine: google
+    weights:
+      general: 0.8
+    shortcut: g
+    disabled: false
+    quicklink: true
+
+  # ── Knowledge / Reference ─────────────────────────────
+  - name: wikipedia
+    engine: wikipedia
+    weights:
+      general: 0.7
+    shortcut: wp
+    disabled: false
+    quicklink: true
+    base_url: https://{lang}.wikipedia.org/
+
+  - name: stackoverflow
+    engine: stackexchange
+    weights:
+      general: 0.6
+      it: 1.5
+    shortcut: so
+    disabled: false
+    categories:
+      - general
+      - it
+    quicklink: true
+
+  # ── Additional quality engines ────────────────────────
+  - name: mojeek
+    engine: mojeek
+    weights:
+      general: 0.4
+    shortcut: mj
+    disabled: false
+    quicklink: true
+
+  - name: yandex
+    engine: yandex
+    weights:
+      general: 0.3
+    shortcut: ya
+    disabled: false
+    quicklink: true
+
+  # ── Files (torrent) ───────────────────────────────────
+  - name: 1337x
+    engine: 1337x
+    disabled: false
+    shortcut: t1
+    categories:
+      - files
+
+  # ── IT category engines ───────────────────────────────
+  - name: stackoverflow-it
+    engine: stackexchange
+    weights:
+      it: 2.0
+    shortcut: soit
+    disabled: false
+    categories:
+      - it
+    quicklink: true
+
+  - name: google-scholar
+    engine: google_scholar
+    weights:
+      it: 1.0
+    shortcut: gsch
+    disabled: false
+    categories:
+      - it
+    quicklink: true
+
+ # ─── Result filtering ──────────────────────────────────────
+filtering_supported: true
+removed_parts:
+  - utm
+  - utm_source
+  - utm_medium
+  - utm_campaign
+  - utm_term
+  - utm_content
+  - anid
+  - cid
+  - cjksw
+  - edation
+  - ei
+  - gclid
+  - imeftrk
+  - imgref
+  - ISAIR
+  - iss
+  - isp
+  - pd
+  - pq
+  - ss_ib
+  - src
+hostname_slots:
+  - '{i}'
+  - '{m}'
+  - '{longest}'
+  - '{p}'
+  - '{url}'
+  - '{wildcard}'
+
+# ─── Trusted overlays ─────────────────────────────────────
+trusted_services:
+  - 'dbpedia'
+  - 'wolframalpha'
+  - 'quora'
+  - 'passwords'
+  - 'open_meteo'
+  - 'api_db'
+  - 'fuzzy_ok'
+
+# ─── Outgoing (HTTP proxy for engine requests) ────────────
+outgoing:
+  request_timeout: 10.0
+  maximum_seconds: 20.0
+  useragent_suffix: ""
