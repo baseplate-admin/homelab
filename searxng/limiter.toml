@@ -1,0 +1,4 @@
+# Minimal limiter config - required by SearXNG 2026
+[botdetection]
+# Disable rate limiting for homelab use
+enabled = false
