@@ -26,21 +26,16 @@ services:
 
 
     labels:
-        - "traefik.enable=true"
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
 
-        # HTTPS router
-        - "traefik.http.routers.searxng.rule=Host(`searxng.homelab.zad.bd`)"
-        - "traefik.http.routers.searxng.entrypoints=websecure"
-        - "traefik.http.routers.searxng.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.searxng.rule=Host(`searxng.homelab.zad.bd`)"
+      - "traefik.http.routers.searxng.entrypoints=websecure"
+      - "traefik.http.routers.searxng.tls=true"
+      - "traefik.http.routers.searxng.tls.certresolver=letsencrypt"
 
-        # internal port
-        - "traefik.http.services.searxng.loadbalancer.server.port=8080"
-
-        #  forwarded headers middleware
-        - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
-        - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Port=443"
-
-        - "traefik.http.routers.searxng.middlewares=searxng-headers"
+      - "traefik.http.routers.searxng.service=searxng"
+      - "traefik.http.services.searxng.loadbalancer.server.port=8080"
         
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
