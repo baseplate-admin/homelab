@@ -72,8 +72,8 @@ services:
       - POSTGRES_PASSWORD=searxng_pass
 
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
+      - postgres_data:/var/lib/postgresql
+      
     networks:
       - backend
 
