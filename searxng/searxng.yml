@@ -33,7 +33,6 @@ server:
 
   proxy_mode: true
   image_proxy: true
-  public_instance: true
   limiter: true
 
   method: "POST"
