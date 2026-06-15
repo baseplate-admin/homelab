@@ -1,14 +1,328 @@
-# SearXNG settings - enable JSON API for programmatic queries
+# SearXNG settings - Google-like quality search
 
 use_default_settings: true
 
+# ─── General ───────────────────────────────────────────────
+general:
+  debug: false
+  instance_name: "Homelab SearXNG"
+  privacypolicy_url: false
+  donate_url: false
+  warn_about_missing_reducer: true
+
+# ─── Search ────────────────────────────────────────────────
 search:
-  json_enabled: true
+  safe_search: 0
+  existing_only: false
+  autocomplete: google
+  default_lang: auto
   formats:
     - html
     - json
+  json_enabled: true
+  redirect_hits: true
+  # Remove SearXNG branding from result URLs
+  remove_pending_after: 30
 
+# ─── Server ────────────────────────────────────────────────
 server:
   secret_key: "48f459ac97b069853341a3fd15096a54ba83479ea1aff98bb95c4413f043b8ab"
   bind_address: "0.0.0.0"
   port: 8080
+  base_url: /
+  method: "POST"
+  host: /
+  proxy_mode: false
+  # UWSGI workers for better concurrency
+  limiter: false
+  storage:
+    backend:
+      name: postgres
+      url: postgresql://searxng:searxng_pass@postgres:5432/searxng
+      username: searxng
+      password: searxng_pass
+  atf: true
+  result_proxy: false
+  debug: false
+
+# ─── Database ──────────────────────────────────────────────
+# PostgreSQL for bookmarks, suggestions, trends, query log
+database:
+  backend: postgres
+  url: postgresql://searxng:searxng_pass@postgres:5432/searxng
+  # url: postgresql://user:pass@host:5432/dbname
+
+# ─── Redis Cache ──────────────────────────────────────────
+redis:
+  url: redis://redis:6379/0
+
+# ─── UI ────────────────────────────────────────────────────
+ui:
+  static_use_hash: true
+  theme: simple
+  default_theme: simple
+  infinite_scroll: true
+  max_displayed_results_per_type: 10
+  editions: 5
+  default_transformation_hints_visibility: true
+  query_in_title: true
+
+# ─── Plugins ───────────────────────────────────────────────
+enabled_plugins:
+  - 'Hash plugin'
+  - 'Tracker URL remover'
+  - 'Hostname replacement'
+  - 'Open Access DOI replacement'
+  - 'Self Information'
+  - 'Torrent plugins'
+  - 'Wiki API plugin'
+  - 'Image suggestion plugin'
+  - 'Search on category key plugin'
+  - 'Advanced search settings'
+  - 'Leetkey plugin'
+  - '2048 bytes'
+  - 'Vim-like key binding plugin'
+  - 'Mort plugin'
+  - 'Advanced search'
+
+# ─── Docker plugin for better result handling ──────────────
+checker:
+  disable_checker: false
+
+# ─── Categories & Engines ─────────────────────────────────
+categories:
+  general:
+    icons: false
+
+# ─── Engine Configuration - Google-like quality combo ─────
+engines:
+
+  # ── Web Search Engines (primary) ──────────────────────
+  - name: Bing
+    engine: bing
+    weights:
+      general: 2.0
+    shortcut: bi
+    disabled: false
+    quicklink: true
+
+  - name: Brave
+    engine: brave
+    weights:
+      general: 1.5
+    shortcut: br
+    disabled: false
+    quicklink: true
+
+  - name: DuckDuckGo
+    engine: duckduckgo
+    weights:
+      general: 1.0
+    shortcut: ddg
+    disabled: false
+    quicklink: true
+
+  - name: Google
+    engine: google
+    weights:
+      general: 0.8
+    shortcut: g
+    disabled: false
+    quicklink: true
+
+  # ── Knowledge / Reference ─────────────────────────────
+  - name: Wikipedia
+    engine: wikipedia
+    weights:
+      general: 0.7
+    shortcut: wp
+    disabled: false
+    quicklink: true
+    base_url: https://{lang}.wikipedia.org/
+
+  - name: StackOverflow
+    engine: stackexchange
+    weights:
+      general: 0.6
+      it: 1.5
+    shortcut: so
+    disabled: false
+    quicklink: true
+    categories:
+      - general
+      - it
+
+  # ── Additional quality engines ────────────────────────
+  - name: Qwant
+    engine: qwant
+    weights:
+      general: 0.5
+    shortcut: qw
+    disabled: false
+    quicklink: true
+
+  - name: Searx
+    engine: searx
+    weights:
+      general: 0.3
+    shortcut: sx
+    disabled: false
+    quicklink: true
+
+  - name: Mojeek
+    engine: mojeek
+    weights:
+      general: 0.4
+    shortcut: mj
+    disabled: false
+    quicklink: true
+
+  - name: Yandex
+    engine: yandex
+    weights:
+      general: 0.3
+    shortcut: ya
+    disabled: false
+    quicklink: true
+
+  # ── News ──────────────────────────────────────────────
+  - name: Brave News
+    engine: brave_news
+    weights:
+      news: 1.5
+    shortcut: brn
+    disabled: false
+    categories:
+      - news
+
+  - name: DuckDuckGo News
+    engine: duckduckgo_news
+    weights:
+      news: 1.0
+    shortcut: ddgn
+    disabled: false
+    categories:
+      - news
+
+  # ── Files ─────────────────────────────────────────────
+  - name: 1337x
+    engine: 1337x
+    disabled: false
+    shortcut: t1
+    categories:
+      - files
+
+  - name: Pirateproxy
+    engine: pirateproxy
+    disabled: false
+    shortcut: pp
+    categories:
+      - files
+
+  # ── IT category engines ───────────────────────────────
+  - name: StackOverflow (IT)
+    engine: stackexchange
+    weights:
+      it: 2.0
+    shortcut: soit
+    disabled: false
+    categories:
+      - it
+    quicklink: true
+
+  - name: Google Scholar (IT)
+    engine: google_scholar
+    weights:
+      it: 1.0
+    shortcut: gsch
+    disabled: false
+    categories:
+      - it
+    quicklink: true
+
+  # ── Image search ──────────────────────────────────────
+  - name: Brave Images
+    engine: brave_images
+    weights:
+      images: 1.5
+    shortcut: bri
+    disabled: false
+    categories:
+      - images
+
+  - name: DuckDuckGo Images
+    engine: duckduckgo_images
+    weights:
+      images: 1.0
+    shortcut: ddgi
+    disabled: false
+    categories:
+      - images
+
+  # ── Video search ──────────────────────────────────────
+  - name: Brave Videos
+    engine: brave_videos
+    weights:
+      videos: 1.5
+    shortcut: brv
+    disabled: false
+    categories:
+      - videos
+
+  - name: DuckDuckGo Videos
+    engine: duckduckgo_videos
+    weights:
+      videos: 1.0
+    shortcut: ddgv
+    disabled: false
+    categories:
+      - videos
+
+# ─── Result filtering ──────────────────────────────────────
+filtering_supported: true
+# Remove trackers from URLs
+removed_parts:
+  - utm
+  - utm_source
+  - utm_medium
+  - utm_campaign
+  - utm_term
+  - utm_content
+  - utm_source
+  - anid
+  - cid
+  - cjksw
+  - edation
+  - ei
+  - gclid
+  - imeftrk
+  - imgref
+  - ISAIR
+  - iss
+  - isp
+  - pd
+  - pq
+  - ss_ib
+  - src
+# Hostname replacement for cleaner results
+hostname_slots:
+  - '{i}'
+  - '{m}'
+  - '{longest}'
+  - '{p}'
+  - '{url}'
+  - '{wildcard}'
+
+# ─── Trusted overlays ─────────────────────────────────────
+trusted_services:
+  - 'dbpedia'
+  - 'wolframalpha'
+  - 'quora'
+  - 'passwords'
+  - 'open_meteo'
+  - 'api_db'
+  - 'fuzzy_ok'
+
+# ─── Hotfixes ──────────────────────────────────────────────
+# Disable engines that commonly break in Docker/self-hosted
+# You can re-enable individually if they work for you

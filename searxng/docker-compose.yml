@@ -3,17 +3,26 @@ services:
     image: searxng/searxng:latest
     container_name: searxng
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
 
     environment:
       - BASE_URL=https://searxng.homelab.zad.bd
       - INSTANCE_NAME=Homelab SearXNG
+      - SEARXNG_REDIS_URL=redis://redis:6379/0
+      - SEARXNG_DATABASE_URL=postgresql://searxng:searxng_pass@postgres:5432/searxng
 
     volumes:
       - ./searxng.yml:/etc/searxng/settings.yml
       - searxng_config:/etc/searxng
+      - searxng_data:/data
 
     networks:
       - proxy
+      - internal
 
     labels:
       - "traefik.enable=true"
@@ -23,18 +32,68 @@ services:
       - "traefik.http.routers.searxng.entrypoints=websecure"
       - "traefik.http.routers.searxng.tls.certresolver=letsencrypt"
 
-      # internal port
+      # Internal port
       - "traefik.http.services.searxng.loadbalancer.server.port=8080"
 
-      #  forwarded headers middleware
+      # Forwarded headers middleware
       - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Port=443"
 
       - "traefik.http.routers.searxng.middlewares=searxng-headers"
 
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+
+  redis:
+    image: redis:8-alpine
+    container_name: searxng-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru --save ""
+    volumes:
+      - redis_data:/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: searxng-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: searxng
+      POSTGRES_USER: searxng
+      POSTGRES_PASSWORD: searxng_pass
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U searxng -d searxng"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 networks:
   proxy:
     external: true
+  internal:
+    driver: bridge
 
 volumes:
   searxng_config:
+  searxng_data:
+  redis_data:
+  postgres_data:
