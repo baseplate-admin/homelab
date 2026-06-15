@@ -91,12 +91,6 @@ categories:
     icons: false
   it:
     name: IT
-  news:
-    name: News
-  images:
-    name: Images
-  videos:
-    name: Videos
   files:
     name: Files
 
@@ -204,25 +198,6 @@ engines:
     disabled: false
     quicklink: true
 
-  # ── News ──────────────────────────────────────────────
-  - name: brave-news
-    engine: brave_news
-    weights:
-      news: 1.5
-    shortcut: brn
-    disabled: false
-    categories:
-      - news
-
-  - name: duckduckgo-news
-    engine: duckduckgo_news
-    weights:
-      news: 1.0
-    shortcut: ddgn
-    disabled: false
-    categories:
-      - news
-
   # ── Files (torrent) ───────────────────────────────────
   - name: 1337x
     engine: 1337x
@@ -252,45 +227,7 @@ engines:
       - it
     quicklink: true
 
-  # ── Image search ──────────────────────────────────────
-  - name: brave-images
-    engine: brave_images
-    weights:
-      images: 1.5
-    shortcut: bri
-    disabled: false
-    categories:
-      - images
-
-  - name: duckduckgo-images
-    engine: duckduckgo_images
-    weights:
-      images: 1.0
-    shortcut: ddgi
-    disabled: false
-    categories:
-      - images
-
-  # ── Video search ──────────────────────────────────────
-  - name: brave-videos
-    engine: brave_videos
-    weights:
-      videos: 1.5
-    shortcut: brv
-    disabled: false
-    categories:
-      - videos
-
-  - name: duckduckgo-videos
-    engine: duckduckgo_videos
-    weights:
-      videos: 1.0
-    shortcut: ddgv
-    disabled: false
-    categories:
-      - videos
-
-# ─── Result filtering ──────────────────────────────────────
+ # ─── Result filtering ──────────────────────────────────────
 filtering_supported: true
 removed_parts:
   - utm
