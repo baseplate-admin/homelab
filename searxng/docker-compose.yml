@@ -24,17 +24,24 @@ services:
       - proxy
       - internal
 
+
     labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
+        - "traefik.enable=true"
 
-      - "traefik.http.routers.searxng.rule=Host(`searxng.homelab.zad.bd`)"
-      - "traefik.http.routers.searxng.entrypoints=websecure"
-      - "traefik.http.routers.searxng.tls=true"
-      - "traefik.http.routers.searxng.tls.certresolver=letsencrypt"
+        # HTTPS router
+        - "traefik.http.routers.searxng.rule=Host(`searxng.homelab.zad.bd`)"
+        - "traefik.http.routers.searxng.entrypoints=websecure"
+        - "traefik.http.routers.searxng.tls.certresolver=letsencrypt"
 
-      - "traefik.http.services.searxng.loadbalancer.server.port=8080"
-      
+        # internal port
+        - "traefik.http.services.searxng.loadbalancer.server.port=8080"
+
+        #  forwarded headers middleware
+        - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+        - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Port=443"
+
+        - "traefik.http.routers.searxng.middlewares=searxng-headers"
+        
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
       interval: 30s
