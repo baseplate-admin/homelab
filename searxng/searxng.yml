@@ -28,10 +28,9 @@ server:
   secret_key: "48f459ac97b069853341a3fd15096a54ba83479ea1aff98bb95c4413f043b8ab"
   bind_address: "0.0.0.0"
   port: 8080
-  base_url: /
+  base_url: "https://searxng.homelab.zad.bd/"
   method: "POST"
-  host: /
-  proxy_mode: false
+  proxy_mode: true
   limiter: true
   storage:
     backend:
@@ -47,10 +46,6 @@ server:
 database:
   backend: postgres
   url: postgresql://searxng:searxng_pass@postgres:5432/searxng
-
-# ─── Valkey (Redis-compatible) Cache ──────────────────────
-valkey:
-  url: redis://redis:6379/0
 
 # ─── UI ────────────────────────────────────────────────────
 ui:
@@ -273,5 +268,4 @@ trusted_services:
 outgoing:
   request_timeout: 10.0
   maximum_seconds: 20.0
-  verify_ssl: true
   useragent_suffix: ""
