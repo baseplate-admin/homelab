@@ -1,6 +1,6 @@
 # SearXNG settings - Google-like quality search
 
-use_default_settings: true
+use_default_settings: false
 
 # ─── General ───────────────────────────────────────────────
 general:
@@ -21,7 +21,6 @@ search:
     - json
   json_enabled: true
   redirect_hits: true
-  # Remove SearXNG branding from result URLs
   remove_pending_after: 30
 
 # ─── Server ────────────────────────────────────────────────
@@ -33,7 +32,6 @@ server:
   method: "POST"
   host: /
   proxy_mode: false
-  # UWSGI workers for better concurrency
   limiter: false
   storage:
     backend:
@@ -46,14 +44,12 @@ server:
   debug: false
 
 # ─── Database ──────────────────────────────────────────────
-# PostgreSQL for bookmarks, suggestions, trends, query log
 database:
   backend: postgres
   url: postgresql://searxng:searxng_pass@postgres:5432/searxng
-  # url: postgresql://user:pass@host:5432/dbname
 
-# ─── Redis Cache ──────────────────────────────────────────
-redis:
+# ─── Valkey (Redis-compatible) Cache ──────────────────────
+valkey:
   url: redis://redis:6379/0
 
 # ─── UI ────────────────────────────────────────────────────
@@ -85,20 +81,30 @@ enabled_plugins:
   - 'Mort plugin'
   - 'Advanced search'
 
-# ─── Docker plugin for better result handling ──────────────
+# ─── Checker ───────────────────────────────────────────────
 checker:
   disable_checker: false
 
-# ─── Categories & Engines ─────────────────────────────────
+# ─── Categories ────────────────────────────────────────────
 categories:
   general:
     icons: false
+  it:
+    name: IT
+  news:
+    name: News
+  images:
+    name: Images
+  videos:
+    name: Videos
+  files:
+    name: Files
 
 # ─── Engine Configuration - Google-like quality combo ─────
 engines:
 
   # ── Web Search Engines (primary) ──────────────────────
-  - name: Bing
+  - name: bing
     engine: bing
     weights:
       general: 2.0
@@ -106,7 +112,7 @@ engines:
     disabled: false
     quicklink: true
 
-  - name: Brave
+  - name: brave
     engine: brave
     weights:
       general: 1.5
@@ -114,7 +120,7 @@ engines:
     disabled: false
     quicklink: true
 
-  - name: DuckDuckGo
+  - name: duckduckgo
     engine: duckduckgo
     weights:
       general: 1.0
@@ -122,7 +128,7 @@ engines:
     disabled: false
     quicklink: true
 
-  - name: Google
+  - name: google
     engine: google
     weights:
       general: 0.8
@@ -131,7 +137,7 @@ engines:
     quicklink: true
 
   # ── Knowledge / Reference ─────────────────────────────
-  - name: Wikipedia
+  - name: wikipedia
     engine: wikipedia
     weights:
       general: 0.7
@@ -140,20 +146,20 @@ engines:
     quicklink: true
     base_url: https://{lang}.wikipedia.org/
 
-  - name: StackOverflow
+  - name: stackoverflow
     engine: stackexchange
     weights:
       general: 0.6
       it: 1.5
     shortcut: so
     disabled: false
-    quicklink: true
     categories:
       - general
       - it
+    quicklink: true
 
   # ── Additional quality engines ────────────────────────
-  - name: Qwant
+  - name: qwant
     engine: qwant
     weights:
       general: 0.5
@@ -161,15 +167,7 @@ engines:
     disabled: false
     quicklink: true
 
-  - name: Searx
-    engine: searx
-    weights:
-      general: 0.3
-    shortcut: sx
-    disabled: false
-    quicklink: true
-
-  - name: Mojeek
+  - name: mojeek
     engine: mojeek
     weights:
       general: 0.4
@@ -177,7 +175,7 @@ engines:
     disabled: false
     quicklink: true
 
-  - name: Yandex
+  - name: yandex
     engine: yandex
     weights:
       general: 0.3
@@ -186,7 +184,7 @@ engines:
     quicklink: true
 
   # ── News ──────────────────────────────────────────────
-  - name: Brave News
+  - name: brave_news
     engine: brave_news
     weights:
       news: 1.5
@@ -195,7 +193,7 @@ engines:
     categories:
       - news
 
-  - name: DuckDuckGo News
+  - name: duckduckgo_news
     engine: duckduckgo_news
     weights:
       news: 1.0
@@ -204,7 +202,7 @@ engines:
     categories:
       - news
 
-  # ── Files ─────────────────────────────────────────────
+  # ── Files (torrent) ───────────────────────────────────
   - name: 1337x
     engine: 1337x
     disabled: false
@@ -212,7 +210,7 @@ engines:
     categories:
       - files
 
-  - name: Pirateproxy
+  - name: pirateproxy
     engine: pirateproxy
     disabled: false
     shortcut: pp
@@ -220,7 +218,7 @@ engines:
       - files
 
   # ── IT category engines ───────────────────────────────
-  - name: StackOverflow (IT)
+  - name: stackoverflow_it
     engine: stackexchange
     weights:
       it: 2.0
@@ -230,7 +228,7 @@ engines:
       - it
     quicklink: true
 
-  - name: Google Scholar (IT)
+  - name: google_scholar
     engine: google_scholar
     weights:
       it: 1.0
@@ -241,7 +239,7 @@ engines:
     quicklink: true
 
   # ── Image search ──────────────────────────────────────
-  - name: Brave Images
+  - name: brave_images
     engine: brave_images
     weights:
       images: 1.5
@@ -250,7 +248,7 @@ engines:
     categories:
       - images
 
-  - name: DuckDuckGo Images
+  - name: duckduckgo_images
     engine: duckduckgo_images
     weights:
       images: 1.0
@@ -260,7 +258,7 @@ engines:
       - images
 
   # ── Video search ──────────────────────────────────────
-  - name: Brave Videos
+  - name: brave_videos
     engine: brave_videos
     weights:
       videos: 1.5
@@ -269,7 +267,7 @@ engines:
     categories:
       - videos
 
-  - name: DuckDuckGo Videos
+  - name: duckduckgo_videos
     engine: duckduckgo_videos
     weights:
       videos: 1.0
@@ -280,7 +278,6 @@ engines:
 
 # ─── Result filtering ──────────────────────────────────────
 filtering_supported: true
-# Remove trackers from URLs
 removed_parts:
   - utm
   - utm_source
@@ -288,7 +285,6 @@ removed_parts:
   - utm_campaign
   - utm_term
   - utm_content
-  - utm_source
   - anid
   - cid
   - cjksw
@@ -304,7 +300,6 @@ removed_parts:
   - pq
   - ss_ib
   - src
-# Hostname replacement for cleaner results
 hostname_slots:
   - '{i}'
   - '{m}'
@@ -322,7 +317,3 @@ trusted_services:
   - 'open_meteo'
   - 'api_db'
   - 'fuzzy_ok'
-
-# ─── Hotfixes ──────────────────────────────────────────────
-# Disable engines that commonly break in Docker/self-hosted
-# You can re-enable individually if they work for you
