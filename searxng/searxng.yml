@@ -273,12 +273,5 @@ trusted_services:
 outgoing:
   request_timeout: 10.0
   maximum_seconds: 20.0
-  # HTTP proxy for all engine scraping requests
-  # Set via SEARXNG_OUTGOING_HTTP_PROXY env var or directly here
-  http_proxy: null
-  # Check outgoing SSL certificates
   verify_ssl: true
-  # Custom user agent suffix
-  useragent_suffix:
-  # Custom HTTP headers for outgoing requests
-  http_headers:
+  useragent_suffix: ""
