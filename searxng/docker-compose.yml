@@ -36,6 +36,9 @@ services:
       # Internal port
       - "traefik.http.services.searxng.loadbalancer.server.port=8080"
 
+      # Trust forwarded headers so X-Forwarded-For is passed
+      - "traefik.http.services.searxng.loadbalancer.forwardedHeaders.trustedIPs=0.0.0.0/0"
+
       # Forwarded headers middleware
       - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Port=443"
