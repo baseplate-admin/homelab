@@ -18,7 +18,6 @@ services:
 
     volumes:
       - ./searxng.yml:/etc/searxng/settings.yml
-      - ./limiter.toml:/etc/searxng/limiter.toml
       - searxng_data:/data
 
     networks:
