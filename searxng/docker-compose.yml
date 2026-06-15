@@ -26,7 +26,8 @@ services:
 
     labels:
       - "traefik.enable=true"
-      
+      - "traefik.docker.network=proxy"
+
       # HTTPS router
       - "traefik.http.routers.searxng.rule=Host(`searxng.homelab.zad.bd`)"
       - "traefik.http.routers.searxng.entrypoints=websecure"
