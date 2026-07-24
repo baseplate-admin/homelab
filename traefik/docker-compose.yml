@@ -48,8 +48,8 @@ services:
 
     volumes:
       # Podman socket
-      - /run/podman/podman.sock:/var/run/docker.sock:ro
-
+      - /run/user/1000/podman/podman.sock:/var/run/docker.sock:ro
+  
       # ACME storage
       - letsencrypt:/letsencrypt
 
