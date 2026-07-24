@@ -1,56 +1,64 @@
 services:
-    traefik:
-        image: traefik:latest
-        container_name: traefik
-        restart: unless-stopped
-        ports:
-            - '80:80'
-            - "443:443/tcp"
-            - "443:443/udp"
-            - '8080:8080'
-        command:
-            - '--providers.docker=true'
-            - '--providers.docker.exposedbydefault=false'
-            - '--providers.docker.network=proxy'
-            
-            - '--entrypoints.web.address=:80'
-            - '--entrypoints.websecure.address=:443'
+  traefik:
+    image: docker.io/library/traefik:latest
+    container_name: traefik
+    restart: unless-stopped
 
-            # Enable dashboard
-            - '--api.dashboard=true'
-            - '--api.insecure=true'
+    ports:
+      - "80:80"
+      - "443:443/tcp"
+      - "443:443/udp"
+      - "8080:8080"
 
-            # Enable http/3
-            - "--entrypoints.websecure.http3=true"
+    command:
+      # Podman provider (Docker-compatible API)
+      - "--providers.docker=true"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
 
-            # Experimental FastProxy
-            - "--experimental.fastProxy"
+      # EntryPoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
 
-            # 🐞 Info logs
-            - '--log.level=INFO'
+      # Dashboard
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
 
-            # 🔁 Global redirect
-            - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-            - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      # HTTP/3
+      - "--entrypoints.websecure.http3=true"
 
-            # --- Add these lines for Let's Encrypt ---
-            - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-            - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      # FastProxy
+      - "--experimental.fastProxy"
 
-            # Disable timeout
-            - '--entrypoints.websecure.transport.respondingTimeouts.readTimeout=0'
-            - '--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=0'
+      # Logging
+      - "--log.level=INFO"
 
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-            - letsencrypt:/letsencrypt
-        networks:
-            - proxy
+      # HTTP -> HTTPS redirect
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+
+      # Let's Encrypt
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+
+      # Disable timeouts
+      - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout=0"
+      - "--entrypoints.websecure.transport.respondingTimeouts.idleTimeout=0"
+
+    volumes:
+      # Podman socket
+      - /run/podman/podman.sock:/var/run/docker.sock:ro
+
+      # ACME storage
+      - letsencrypt:/letsencrypt
+
+    networks:
+      - proxy
 
 volumes:
-    letsencrypt:
-
+  letsencrypt:
 
 networks:
-    proxy:
-        external: true
+  proxy:
+    external: true
