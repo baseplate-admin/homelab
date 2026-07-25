@@ -19,8 +19,6 @@ services:
       - searxng_config:/etc/searxng
 
     depends_on:
-      redis:
-        condition: service_healthy
       postgres:
         condition: service_healthy
 
@@ -42,24 +40,6 @@ services:
       - "traefik.http.middlewares.searxng-headers.headers.customrequestheaders.X-Forwarded-Port=443"
       - "traefik.http.routers.searxng.middlewares=searxng-headers"
 
-  redis:
-    image: redis:8-alpine
-    container_name: searxng-redis
-    restart: unless-stopped
-
-    command: redis-server --save 60 1 --loglevel warning
-
-    volumes:
-      - redis_data:/data
-
-    networks:
-      - backend
-
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
 
   postgres:
     image: postgres:18-alpine
