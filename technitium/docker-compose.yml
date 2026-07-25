@@ -1,0 +1,38 @@
+services:
+  technitium:
+    image: technitium/dns-server:latest
+    container_name: technitium
+    restart: unless-stopped
+    privileged: true
+
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+
+      # Web UI (Technitium internal web server runs on port 3080/5380 depending on preference, but default HTTP is 3080 or mapped via env)
+      - "3000:3080/tcp"
+
+    volumes:
+      - technitium_config:/etc/dns
+
+    labels:
+      - "traefik.enable=true"
+
+      # HTTP UI
+      - "traefik.http.routers.technitium.rule=Host(`dns.homelab.zad.bd`)"
+      - "traefik.http.routers.technitium.entrypoints=websecure"
+      - "traefik.http.routers.technitium.tls=true"
+      - "traefik.http.routers.technitium.tls.certresolver=letsencrypt"
+
+      - "traefik.http.services.technitium.loadbalancer.server.port=3080"
+      - "traefik.http.services.technitium.loadbalancer.server.scheme=http"
+
+    networks:
+      - proxy
+
+volumes:
+  technitium_config:
+
+networks:
+  proxy:
+    external: true
