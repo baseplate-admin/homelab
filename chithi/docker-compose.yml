@@ -33,7 +33,7 @@ services:
       - "no-new-privileges:true"
     container_name: rustfs
     restart: unless-stopped
-    user: "10001:10001" 
+    user: "10001:10001"
     volumes:
       - rustfs:/data
     ports:
@@ -82,8 +82,14 @@ services:
     image: ghcr.io/chithi-dev/chithi-backend:latest
     container_name: backend
     restart: unless-stopped
+    # v0.2.0: backend is now Django + Channels (ASGI). The old start_backend.sh
+    # (uvicorn app.main:app + alembic) was removed; we ship our own scripts/
+    # that run migrations (`manage.py migrate`) then serve the ASGI app.
+    # If this 404s / fails on first boot, the image's entrypoint changed.
+    volumes:
+      - ./scripts:/app/scripts:ro
     command: /bin/sh /app/scripts/start_backend.sh
-    labels: 
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
       - "traefik.docker.network=proxy"
@@ -94,17 +100,20 @@ services:
       - "traefik.http.routers.backend.tls=true"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
     environment: &backend-variable
-      POSTGRES_SERVER: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: supersecretpassword
-      POSTGRES_DB: chithi
-      RUSTFS_ENDPOINT_URL: http://rustfs:9000
-      RUSTFS_ACCESS_KEY: rustfsadmin
-      RUSTFS_SECRET_ACCESS_KEY: rustfsadmin
-      CELERY_BROKER_URL: redis://redis:6379/3
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
-      REDIS_ENDPOINT: redis://redis:6379/1
+      # Django
+      SECRET_KEY: changeme-please-generate-a-long-random-secret
+      DEBUG: "False"
+      # Database (v0.2.0: single DATABASE_URL replaces POSTGRES_* vars)
+      DATABASE_URL: postgres://postgres:supersecretpassword@postgres:5432/chithi
+      # S3-compatible object storage (v0.2.0: RUSTFS_* -> S3_*, map RustFS to the s3 backend)
+      STORAGE_BACKEND: s3
+      S3_ENDPOINT_URL: http://rustfs:9000
+      S3_ACCESS_KEY_ID: rustfsadmin
+      S3_SECRET_ACCESS_KEY: rustfsadmin
+      S3_BUCKET_NAME: chithi
+      # Celery / Redis (v0.2.0: REDIS_ENDPOINT removed — broker URL doubles as cache + channel layer)
+      CELERY_BROKER_URL: redis://redis:6379/0
+      # Running behind reverse proxy
       ROOT_PATH: /api
     depends_on:
       postgres:
@@ -118,9 +127,12 @@ services:
       - default
 
   celery:
-    image:  ghcr.io/chithi-dev/chithi-backend:latest
+    image: ghcr.io/chithi-dev/chithi-backend:latest
     container_name: celery
     restart: unless-stopped
+    # v0.2.0: Celery app now lives in the `core` package (was `app.celery`).
+    volumes:
+      - ./scripts:/app/scripts:ro
     command: /bin/sh /app/scripts/start_celery.sh
     environment: *backend-variable
     depends_on:
@@ -135,7 +147,7 @@ services:
     image: ghcr.io/chithi-dev/chithi-frontend-node:latest
     container_name: frontend
     restart: unless-stopped
-    labels: 
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`chithi.dev`)"
       - "traefik.http.routers.frontend.priority=1"
@@ -147,7 +159,7 @@ services:
       - "traefik.http.middlewares.coep.headers.customResponseHeaders.Cross-Origin-Embedder-Policy=require-corp"
       - "traefik.http.middlewares.coep.headers.customResponseHeaders.Cross-Origin-Resource-Policy=same-origin"
       - "traefik.http.routers.frontend.middlewares=coep@docker"
-      
+
     environment:
       PUBLIC_BACKEND_API: https://chithi.dev/api
     depends_on:
