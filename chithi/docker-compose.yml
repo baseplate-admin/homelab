@@ -15,56 +15,6 @@ services:
       timeout: 5s
       retries: 5
 
-  volume-permission-helper:
-    image: alpine
-    volumes:
-      - rustfs:/data
-    command: >
-      sh -c "
-        chown -R 10001:10001 /data &&
-        echo 'Volume Permissions fixed' &&
-        exit 0
-      "
-    restart: "no"
-
-  rustfs:
-    image: rustfs/rustfs:1.0.0-beta.3
-    security_opt:
-      - "no-new-privileges:true"
-    container_name: rustfs
-    restart: unless-stopped
-    user: "10001:10001"
-    volumes:
-      - rustfs:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      - RUSTFS_VOLUMES=/data/rustfs
-      - RUSTFS_ADDRESS=0.0.0.0:9000
-      - RUSTFS_CONSOLE_ADDRESS=0.0.0.0:9001
-      - RUSTFS_CONSOLE_ENABLE=true
-      - RUSTFS_CORS_ALLOWED_ORIGINS=*
-      - RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS=*
-      - RUSTFS_ACCESS_KEY=rustfsadmin # CHANGEME
-      - RUSTFS_SECRET_KEY=rustfsadmin # CHANGEME
-      - RUSTFS_OBS_LOGGER_LEVEL=info
-      # - RUSTFS_TLS_PATH=/opt/tls
-      # Object Cache
-      - RUSTFS_OBJECT_CACHE_ENABLE=true
-      - RUSTFS_OBJECT_CACHE_TTL_SECS=300
-
-
-    healthcheck:
-      test: [ "CMD", "sh", "-c", "curl -f http://localhost:9000/health && curl -f http://localhost:9001/rustfs/console/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      volume-permission-helper:
-        condition: service_completed_successfully
-
   redis:
     image: redis:8.8.0-alpine
     container_name: redis
@@ -98,12 +48,18 @@ services:
       DEBUG: "False"
       # Database (v0.2.0: single DATABASE_URL replaces POSTGRES_* vars)
       DATABASE_URL: postgres://postgres:supersecretpassword@postgres:5432/chithi
-      # S3-compatible object storage (v0.2.0: RUSTFS_* -> S3_*, map RustFS to the s3 backend)
-      STORAGE_BACKEND: s3
-      S3_ENDPOINT_URL: http://rustfs:9000
-      S3_ACCESS_KEY_ID: rustfsadmin
-      S3_SECRET_ACCESS_KEY: rustfsadmin
-      S3_BUCKET_NAME: chithi
+      # Backblaze B2 (S3-compatible API). See .env for the secret values.
+      # S3_ENDPOINT_URL = B2 S3 API endpoint (where the backend writes).
+      # S3_CDN_URL      = public/CDN domain clients download from (free B2 egress
+      #                   via Cloudflare Bandwidth Alliance). When set, downloads
+      #                   skip query-string signing.
+      STORAGE_BACKEND: b2
+      S3_ENDPOINT_URL: https://s3.eu-central-003.backblazeb2.com
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      S3_ADDRESSING_STYLE: path
+      S3_CDN_URL: ${S3_CDN_URL:-https://media.chithi.dev}
       # Celery / Redis (v0.2.0: REDIS_ENDPOINT removed — broker URL doubles as cache + channel layer)
       CELERY_BROKER_URL: redis://redis:6379/0
       # Running behind reverse proxy
@@ -112,8 +68,6 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      rustfs:
         condition: service_healthy
     networks:
       - proxy
@@ -160,7 +114,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  rustfs:
 
 networks:
   proxy:
