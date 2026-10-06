@@ -82,13 +82,6 @@ services:
     image: ghcr.io/chithi-dev/chithi-backend:latest
     container_name: backend
     restart: unless-stopped
-    # v0.2.0: backend is now Django + Channels (ASGI). The old start_backend.sh
-    # (uvicorn app.main:app + alembic) was removed; we ship our own scripts/
-    # that run migrations (`manage.py migrate`) then serve the ASGI app.
-    # If this 404s / fails on first boot, the image's entrypoint changed.
-    volumes:
-      - ./scripts:/app/scripts:ro
-    command: /bin/sh /app/scripts/start_backend.sh
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`chithi.dev`) && PathPrefix(`/api`)"
@@ -130,10 +123,6 @@ services:
     image: ghcr.io/chithi-dev/chithi-backend:latest
     container_name: celery
     restart: unless-stopped
-    # v0.2.0: Celery app now lives in the `core` package (was `app.celery`).
-    volumes:
-      - ./scripts:/app/scripts:ro
-    command: /bin/sh /app/scripts/start_celery.sh
     environment: *backend-variable
     depends_on:
       postgres:
