@@ -1,19 +1,21 @@
 
 services:
   miner:
-    build: .
-    container_name: unmineable-gtx1050ti
+    image: hashraptor/forge:latest
+    container_name: usdt-miner
     restart: unless-stopped
 
     gpus: all
 
     command:
-      - --algo
-      - pearl
-      - --pool
-      - stratum+tcp://pearlpow.unmineable.com:3333
+      - --algorithm
+      - pearlhash
       - --wallet
-      - zarif_ahnaf.gtx1050ti
+      - zarif_ahnaf
+      - --worker
+      - gtx1050ti
+      - --pool
+      - pearlpow.unmineable.com:3333
 
     security_opt:
       - no-new-privileges:true
