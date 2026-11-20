@@ -9,16 +9,11 @@ services:
 
     command:
       - --algo
-      - pearlhash
-      - --url
+      - pearl
+      - --pool
       - stratum+tcp://pearlpow.unmineable.com:3333
-      - --user
-      - zarif_ahnaf
-      - --worker
-      - gtx1050ti
-      - --pass
-      - x
-      - --ui-plain
+      - --wallet
+      - zarif_ahnaf.gtx1050ti
 
     security_opt:
       - no-new-privileges:true
