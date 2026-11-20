@@ -4,18 +4,15 @@ services:
     container_name: unmineable-cpu
     restart: unless-stopped
 
-    cpuset: "0"
-    cpus: 1.0
+    cpus: 1.5
 
     command:
       - --algo=rx/0
       - --url=rx.unmineable.com:3333
       - --user=zarif_ahnaf.core2duo
       - --pass=x
-      - --keepalive
-      - --threads=1
+      - --threads=2
       - --cpu-priority=1
-      - --randomx-init=1
       - --randomx-mode=light
       - --print-time=60
 
