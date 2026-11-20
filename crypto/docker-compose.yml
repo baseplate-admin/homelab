@@ -1,0 +1,21 @@
+
+services:
+  miner:
+    image: hashraptor/forge:latest
+    container_name: usdt-miner
+    restart: unless-stopped
+
+    gpus: all
+
+    command:
+      - --algorithm
+      - pearlhash
+      - --wallet
+      - zarif_ahnaf
+      - --worker
+      - gtx1050ti
+      - --pool
+      - pearlpow.unmineable.com:3333
+
+    security_opt:
+      - no-new-privileges:true
