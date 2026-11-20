@@ -1,4 +1,3 @@
-
 services:
   miner:
     image: hashraptor/forge:latest
