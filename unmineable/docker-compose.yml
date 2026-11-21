@@ -4,7 +4,7 @@ services:
     container_name: unmineable-cpu
     restart: unless-stopped
 
-    cpus: 0.10
+    cpus: 0.80
 
     command:
       - --algo=rx/0
