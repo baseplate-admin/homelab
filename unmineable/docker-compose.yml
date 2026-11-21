@@ -4,14 +4,14 @@ services:
     container_name: unmineable-cpu
     restart: unless-stopped
 
-    cpus: 1.5
+    cpus: 0.10
 
     command:
       - --algo=rx/0
-      - --url=rx.unmineable.com:3333
-      - --user=zarif_ahnaf.core2duo
+      - --url=xmr.kryptex.network:7029
+      - --user=krxYD3N2K4.worker
       - --pass=x
-      - --threads=2
+      - --threads=1
       - --cpu-priority=1
       - --randomx-mode=light
       - --print-time=60
